@@ -1,0 +1,599 @@
+= The Hobbit Graph, or To Nodes and Back Again 
+
+:author: Kevin "I Have No Idea What I'm Doing" Van Gundy
+:twitter: @KevinVanGundy
+:tags: Hobbit, LOTR, Tolkien, Movies, Books
+
+
+[cols="1*"]
+|===
+a|image::http://i.imgur.com/AIjVQ6c.jpg[]
+|===
+
+With the final installment of http://en.wikipedia.org/wiki/Peter_Jackson[Peter Jackson's] http://en.wikipedia.org/wiki/The_Hobbit_(film_series)[Hobbit Trilogy] only a few months away, I decided it would be fun to graph out http://en.wikipedia.org/wiki/Tolkien[Tolkien's] novel in Neo4j and try a few different queries to show how a graph database can tell your data's story.
+
+*We're going on a graphy adventure!*
+
+image::http://i.imgur.com/a5WWCZf.gif[]
+
+== Domain Model
+
+The following drawing shows the domain model and how it all is connected. I decided to use "event" nodes to help me arrange events in time as well as space. @KennyBastani has a great http://gist.neo4j.org/?github-kbastani%2Fgists%2F%2Fmeta%2FTimeScaleEventMetaModel.adoc[GraphGist] about using Neo4j to model time and related information.
+
+image::http://i.imgur.com/y2iDtAq.png?1[]
+
+== Setup
+
+//hide
+//setup
+Click the Plus to see the Cypher
+[source,cypher]
+----
+//Obviously, spoilers ahead...
+//
+//Characters / Locations
+//
+//First up, Hobbits past and present
+CREATE
+(Race01:Race {name:'Hobbits'}),
+(Hob01:Character {name:'Bilbo Baggins', race:'Hobbit', alias:'The Thief'}),
+(Hob02:Character {name:'Gollum', race:'Hobbit', alias:'Smeagol'}),
+(Hob03:Character {name:'Bungo Baggins', race:'Hobbit'}),
+(Hob04:Character {name:'Belladonna Took', race:'Hobbit'}),
+(Hob05:Character {name:'Sackville-Bagginses', race:'Hobbit'}),
+//
+//Membership of Race
+(Hob01)-[:RACE]->(Race01),
+(Hob02)-[:RACE]->(Race01),
+(Hob03)-[:RACE]->(Race01),
+(Hob04)-[:RACE]->(Race01),
+(Hob05)-[:RACE]->(Race01),
+//
+//Genealogical / Career
+(Hob03)-[:FATHER_OF]->(Hob01),
+(Hob04)-[:MOTHER_OF]->(Hob01),
+(Hob03)-[:MARRIED_TO]->(Hob04),
+//
+//Wizards
+(Race02:Race {name:'Wizards'}),
+(Wiz01:Character {name:'Gandalf the Grey', race:'Wizard', alias:'Olorin'}),
+(Wiz02:Character {name:'Radagast', race:'Wizard', alias:'Aiwendil'}),
+(Wiz03:Character {name:'The Necromancer', race:'Wizard'}),
+(Wiz01)-[:RACE]->(Race02),
+(Wiz02)-[:RACE]->(Race02),
+(Wiz03)-[:RACE]->(Race02),
+(Wiz02)-[:COUSIN_OF]->(Wiz02),
+//
+//Dwarves
+(Race03:Race {name:'Dwarves'}),
+(Dwa01:Character {name:'Thorin Oakenshield', race:'Dwarf'}),
+(Dwa02:Character {name:'Fili', race:'Dwarf'}),
+(Dwa03:Character {name:'Kili', race:'Dwarf'}),
+(Dwa04:Character {name:'Balin', race:'Dwarf'}),
+(Dwa05:Character {name:'Dwalin', race:'Dwarf'}),
+(Dwa06:Character {name:'Oin', race:'Dwarf'}),
+(Dwa07:Character {name:'Gloin', race:'Dwarf'}),
+(Dwa08:Character {name:'Ori', race:'Dwarf'}),
+(Dwa09:Character {name:'Dori', race:'Dwarf'}),
+(Dwa10:Character {name:'Nori', race:'Dwarf'}),
+(Dwa11:Character {name:'Bifur', race:'Dwarf'}),
+(Dwa12:Character {name:'Bofur', race:'Dwarf'}),
+(Dwa13:Character {name:'Bombur', race:'Dwarf'}),
+(Dwa14:Character {name:'Dain', race:'Dwarf'}),
+(Dwa01)-[:RACE]->(Race03),
+(Dwa01)-[:RACE]->(Race03),
+(Dwa02)-[:RACE]->(Race03),
+(Dwa03)-[:RACE]->(Race03),
+(Dwa04)-[:RACE]->(Race03),
+(Dwa05)-[:RACE]->(Race03),
+(Dwa06)-[:RACE]->(Race03),
+(Dwa07)-[:RACE]->(Race03),
+(Dwa08)-[:RACE]->(Race03),
+(Dwa09)-[:RACE]->(Race03),
+(Dwa10)-[:RACE]->(Race03),
+(Dwa11)-[:RACE]->(Race03),
+(Dwa12)-[:RACE]->(Race03),
+(Dwa13)-[:RACE]->(Race03),
+(Dwa14)-[:RACE]->(Race03),
+(Dwa02)-[:NEWPHEW_OF]->(Dwa01),
+(Dwa03)-[:NEWPHEW_OF]->(Dwa01),
+(Dwa04)-[:BROTHER_OF]->(Dwa05),
+(Dwa06)-[:BROTHER_OF]->(Dwa07),
+(Dwa13)-[:COUSIN_OF]->(Dwa01),
+//
+//Elves
+(Race04:Race {name:'Elves'}),
+(Elv01:Character {name:'Elrond', race:'Elf'}),
+(Elv02:Character {name:'The Elvenking', race:'Elf'}),
+(Elv03:Character {name:'Galion', race:'Elf'}),
+(Elv01)-[:RACE]->(Race04),
+(Elv02)-[:RACE]->(Race04),
+(Elv03)-[:RACE]->(Race04),
+(Elv03)-[:BUTLER_OF]->(Elv02),
+//
+//Men
+(Race05:Race {name:'Men'}),
+(Men01:Character {name:'Bard', race:'Man'}),
+(Men02:Character {name:'Beorn', race:'Man', alias:'Skin-Changer'}),
+(Men03:Character {name:'Master of Lake-Town', race: 'Man'}),
+(Men01)-[:RACE]->(Race05),
+(Men02)-[:RACE]->(Race05),
+(Men03)-[:RACE]->(Race05),
+//
+//Trolls
+(Race06:Race {name:'Trolls'}),
+(Tro01:Character {name:'Tom', race:'Troll'}),
+(Tro02:Character {name:'Bert', race:'Troll'}),
+(Tro03:Character {name:'William', race:'Troll', alias:'Bill Huggins'}),
+(Tro01)-[:RACE]->(Race06),
+(Tro02)-[:RACE]->(Race06),
+(Tro03)-[:RACE]->(Race06),
+//
+//Dragons
+(Race07:Race {name:'Dragons'}),
+(Dra01:Character {name: 'Smaug', race:'Dragon'}),
+(Dra01)-[:RACE]->(Race07),
+//
+//Birds
+(Race08:Race {name:'Birds'}),
+(Bir01:Character {name:'The Lord of the Eagles', race:'Bird', class:'Eagle'}),
+(Bir02:Character {name:'Carc', race:'Bird', class:'Raven'}),
+(Bir03:Character {name:'Roac', race:'Bird', class:'Raven'}),
+(Bir01)-[:RACE]->(Race08),
+(Bir02)-[:RACE]->(Race08),
+(Bir03)-[:RACE]->(Race08),
+(Bir03)-[:SON_OF]->(Bir02),
+
+//
+//Goblins
+(Race09:Race {name:'Goblins'}),
+(Gob01:Character {name:'The Great Gobilin', race:'Goblin'}),
+(Gob02:Character {name:'Bolg', race:'Goblin'}),
+(Gob03:Character {name:'Golfimbul', race:'Goblin'}),
+(Gob04:Character {name:'Wargs', race:'Giant Wolf'}),
+(Gob02)-[:SUCCEEDS]->(Gob01), 
+//Now, we'll create major parties / clans 
+//
+(Clan01:Clan {name:'The Company'}),
+(Hob01)-[:MEMBER_OF]->(Clan01),
+(Dwa01)-[:LEADS]->(Clan01),
+(Dwa01)-[:MEMBER_OF]->(Clan01),
+(Dwa02)-[:MEMBER_OF]->(Clan01),
+(Dwa03)-[:MEMBER_OF]->(Clan01),
+(Dwa04)-[:MEMBER_OF]->(Clan01),
+(Dwa05)-[:MEMBER_OF]->(Clan01),
+(Dwa06)-[:MEMBER_OF]->(Clan01),
+(Dwa07)-[:MEMBER_OF]->(Clan01),
+(Dwa08)-[:MEMBER_OF]->(Clan01),
+(Dwa09)-[:MEMBER_OF]->(Clan01),
+(Dwa10)-[:MEMBER_OF]->(Clan01),
+(Dwa11)-[:MEMBER_OF]->(Clan01),
+(Dwa12)-[:MEMBER_OF]->(Clan01),
+(Dwa13)-[:MEMBER_OF]->(Clan01),
+//
+(Clan02:Clan {name:'Elves of Rivendale'}),
+(Elv01)-[:LEADS]->(Clan02),
+//
+(Clan03:Clan {name:'The Goblins Under the Mountain'}),
+(Gob01)-[:MEMBER_OF]->(Clan03),
+(Gob01)-[:LEADS]->(Clan03),
+(Gob04)-[:MEMBER_OF]->(Clan03),
+//
+(Clan04:Clan {name:'The Mirkwood Elves'}),
+(Elv02)-[:LEADS]->(Clan04),
+(Elv02)-[:MEMBER_OF]->(Clan04),
+(Elv03)-[:MEMBER_OF]->(Clan04),
+//
+(Clan05:Clan {name:'People of Laketown'}),
+(Men03)-[:LEADS]->(Clan05),
+(Men03)-[:MEMBER_OF]->(Clan05),
+(Men01)-[:MEMBER_OF]->(Clan05),
+//
+//Locations
+(Loc01:Location {name:'Hobbiton', Topography:'Hills', SettlementSize:'Town'}),
+(Loc02:Location {name:'The Hill'}),
+(Loc02)-[:SUBDIVISON_OF]->(Loc01),
+(Hob01)-[:LIVES_IN]->(Loc02),
+(Hob03)-[:LIVES_IN]->(Loc02),
+(Hob04)-[:LIVES_IN]->(Loc02),
+(Hob05)-[:LIVES_IN]->(Loc02),
+//
+(Loc03:Location {name:'Trollshaws', Topography:'Forrest'}),
+(Tro01)-[:LIVES_IN]->(Loc03),
+(Tro02)-[:LIVES_IN]->(Loc03),
+(Tro03)-[:LIVES_IN]->(Loc03),
+//
+(Loc04:Location {name:'Rivendell', Topography:'Valley'}),
+(Elv01)-[:LIVES_IN]->(Loc04),
+(Clan02)-[:LIVES_IN]->(Loc04),
+//
+(Loc05:Location {name:'Misty Mountains', Topography:'Mountain'}),
+(Loc06:Location {name:'Under the Misty Mountains', Topography:'Caves'}),
+(Loc06)-[:IS_BENEATH]->(Loc05),
+(Hob02)-[:LIVES_IN]->(Loc06),
+(Gob01)-[:LIVES_IN]->(Loc06),
+(Gob04)-[:LIVES_IN]->(Loc05),
+(Gob04)-[:LIVES_IN]->(Loc06),
+(Clan03)-[:LIVES_IN]->(Loc06),
+//
+(Loc07:Location {name:'The Carrock', Topography:'Forrest'}),
+//
+(Loc08:Location {name:'Rhosgobel', Topography:'Forrest'}),
+(Men02)-[:LIVES_IN]->(Loc08),
+//
+(Loc09:Location {name:'Mirkwood',Topography:'Forrest'}),
+(Elv02)-[:LIVES_IN]->(Loc09),
+(Elv03)-[:LIVES_IN]->(Loc09),
+(Clan04)-[:LIVES_IN]->(Loc09),
+//
+(Loc10:Location {name:'Esgaroth', Topography:'Lake', SettlementSize:'Town'}),
+(Loc11:Location {name:'Dale', SettlementSize:'Town'}),
+(Men01)-[:LIVES_IN]->(Loc10),
+(Loc10)-[:BUILT_UPON]->(Loc11),
+//
+(Loc12:Location {name:'Lonely Mountain', Topography:'Mountain'}),
+(Dra01)-[:LIVES_IN]->(Loc12),
+//
+(Dwa14)-[:LEADS]->(Clan06:Clan {name:'The Army of Dain'}),
+//
+//Now we'll enter in key items
+(Ite01:Item {name:'The One Ring'}),
+(Ite02:Item {name:'Key into the Lonely Mountain'}),
+(Ite03:Item {name:'Map to the Lonely Mountain'}),
+(Ite04:Item {name:'The Arkenstone'}),
+//
+//Now to organize the key places in space!
+//
+(Loc01)-[:LOCATED {Direction:'East Of'}]->(Loc03),
+(Loc03)-[:LOCATED {Direction:'East Of'}]->(Loc04),
+(Loc04)-[:LOCATED {Direction:'East Of'}]->(Loc05),
+(Loc05)-[:LOCATED {Direction:'Southeast Of'}]->(Loc07),
+(Loc07)-[:LOCATED {Direction:'Southeast Of'}]->(Loc08),
+(Loc08)-[:LOCATED {Direction:'East Of'}]->(Loc09),
+(Loc09)-[:LOCATED {Direction:'East Of'}]->(Loc10),
+(Loc10)-[:LOCATED {Direction:'Southeast Of'}]->(Loc12),
+//
+//Neo4j actually has a great acuity for organizing things temporally, here we show time as a relationship between moments
+//We'll use chapters as a timeline
+//
+(Cha01:Chapter {title: 'An Unexpected Party', chap:1}),
+(Cha02:Chapter {title: 'Roast Mutton', chap:2}),
+(Cha03:Chapter {title: 'A Short Rest', chap:3}),
+(Cha04:Chapter {title: 'Over Hill and Under Hill', chap:4}),
+(Cha05:Chapter {title: 'Riddles in the Dark', chap:5}),
+(Cha06:Chapter {title: 'Out of the Frying Pan, Into the Fire', chap:6}),
+(Cha07:Chapter {title: 'Queer Lodgings', chap:7}),
+(Cha08:Chapter {title: 'Flies and Spiders', chap:8}),
+(Cha09:Chapter {title: 'Barrels Out of Bound', chap:9}),
+(Cha10:Chapter {title: 'A Warm Welcome', chap:10}),
+(Cha11:Chapter {title: 'On the Doorstep', chap:11}),
+(Cha12:Chapter {title: 'Inside Information', chap:12}),
+(Cha13:Chapter {title: 'Not at Home', chap:13}),
+(Cha14:Chapter {title: 'Fire and Water', chap:14}),
+(Cha15:Chapter {title: 'The Gathering of the Clouds', chap:15}),
+(Cha16:Chapter {title: 'A Thief in the Night', chap:16}),
+(Cha17:Chapter {title: 'The Clouds Burst', chap:17}),
+(Cha18:Chapter {title: 'The Return Journey', chap:18}),
+(Cha19:Chapter {title: 'The Last Stage', chap:19}),
+(Cha01)-[:OCCURS_BEFORE]->(Cha02),
+(Cha02)-[:OCCURS_BEFORE]->(Cha03),
+(Cha03)-[:OCCURS_BEFORE]->(Cha04),
+(Cha04)-[:OCCURS_BEFORE]->(Cha05),
+(Cha05)-[:OCCURS_BEFORE]->(Cha06),
+(Cha06)-[:OCCURS_BEFORE]->(Cha07),
+(Cha07)-[:OCCURS_BEFORE]->(Cha08),
+(Cha08)-[:OCCURS_BEFORE]->(Cha09),
+(Cha09)-[:OCCURS_BEFORE]->(Cha10),
+(Cha10)-[:OCCURS_BEFORE]->(Cha11),
+(Cha11)-[:OCCURS_BEFORE]->(Cha12),
+(Cha12)-[:OCCURS_BEFORE]->(Cha13),
+(Cha13)-[:OCCURS_BEFORE]->(Cha14),
+//Technically Ch14 is a flashback but in terms of time w/in the literal book we'll place it "after" chapter 12,13
+(Cha14)-[:OCCURS_BEFORE]->(Cha15),
+(Cha15)-[:OCCURS_BEFORE]->(Cha16),
+(Cha16)-[:OCCURS_BEFORE]->(Cha17),
+(Cha17)-[:OCCURS_BEFORE]->(Cha18),
+(Cha18)-[:OCCURS_BEFORE]->(Cha19),
+//
+//Event generation
+//
+//Chapter 1
+(Eve01:Event {Action:'The Company is Assembled'}),
+(Eve01)-[:OCCURS_IN]->(Cha01),
+(Eve01)-[:LOCATED_IN]->(Loc01),
+(Wiz01)-[:ASSEMBLES]->(Eve01),
+(Eve01)-[:IS_ASSEMBLED]->(Clan01),
+(Wiz01)-[:GIVES]->(Ite02),
+(Wiz01)-[:GIVES]->(Ite03),
+(Ite02)<-[:RECEIVES]-(Dwa01),
+(Ite03)<-[:RECEIVES]-(Dwa01),
+(Eve01)<-[:CHANGES_POSSESSION]-(Ite02),
+//
+(Eve02:Event {Action:'The Company Leaves the Hobbiton'}),
+(Eve01)-[:OCCURS_BEFORE]->(Eve02),
+(Eve02)-[:LOCATED_IN]->(Loc01),
+(Clan01)-[:LEAVES]->(Eve02),
+(Eve02)-[:IS_LEFT]->(Loc01),
+(Eve02)-[:OCCURS_IN]->(Cha01),
+//
+//Chapter 2
+(Eve03:Event {Action:'The Company is Captured, Rescued by Gandalf'}),
+(Eve03)-[:LOCATED_IN]->(Loc03),
+(Eve03)-[:OCCURS_IN]->(Cha02),
+(Tro01)-[:CAPTURES]->(Eve03),
+(Tro02)-[:CAPTURES]->(Eve03),
+(Tro03)-[:CAPTURES]->(Eve03),
+(Eve03)-[:IS_CAPTURED]->(Clan01),
+(Wiz01)-[:KILLS {How:'Turns to Stone'}]->(Tro01),
+(Wiz01)-[:KILLS {How:'Turns to Stone'}]->(Tro02),
+(Wiz01)-[:KILLS {How:'Turns to Stone'}]->(Tro03),
+(Wiz01)-[:RESCUES]->(Eve03),
+(Eve03)-[:IS_RESCUED]->(Clan01),
+//
+//Chapter 3
+(Eve04:Event {Action:'The Company Visits Rivendell'}),
+(Eve04)-[:LOCATED_IN]->(Loc04),
+(Clan01)-[:VISITS]->(Eve04),
+(Eve04)-[:IS_VISITED]->(Loc04),
+(Eve04)-[:OCCURS_IN]->(Cha03),
+//
+//Chapter 4
+(Eve05:Event {Action:'The Dwarves are Captured, Again!'}),
+(Eve05)-[:LOCATED_IN]->(Loc05),
+(Gob01)-[:CAPTURES]->(Eve05),
+(Eve05)-[:IS_CAPTURED]->(Clan01),
+(Hob01)-[:ESCAPES]->(Eve05),
+(Eve05)-[:OCCURS_IN]->(Cha04),
+//
+//Chapter 5
+(Eve06:Event {Action:'Bilbo Finds the One Ring'}),
+(Eve06)-[:LOCATED_IN]->(Loc06),
+(Eve06)-[:OCCURS_IN]->(Cha05),
+(Hob01)-[:FINDS]->(Ite01),
+(Hob02)-[:LOSES]->(Ite01),
+(Eve06)<-[:CHANGES_POSSESSION]-(Ite01),
+//
+//Chapter 6
+(Eve07:Event {Action:'The Company is Rescued by the Eagles'}),
+(Eve07)-[:LOCATED_IN]->(Loc07),
+(Eve07)-[:OCCURS_IN]->(Cha06),
+(Bir01)-[:RESCUES]->(Eve07),
+(Eve07)-[:IS_RESCUED]->(Clan01),
+(Eve07)-[:IS_RESCUED]->(Wiz01),
+//
+//Chapter 7
+(Eve08:Event {Action:'The Company Prepares to Venture into Mirkwood'}),
+(Eve08)-[:LOCATED_IN]->(Loc08),
+(Eve08)-[:OCCURS_IN]->(Cha07),
+(Men02)-[:HOSTS]->(Eve08),
+(Eve08)-[:PREPARES]->(Clan01),
+//
+//Chapter 8
+(Eve09:Event {Action:'The Company wanders in Mirkwood, Captured by the Wood Elves'}),
+(Eve09)-[:LOCATED_IN]->(Loc09),
+(Eve09)-[:OCCURS_IN]->(Cha08),
+(Elv02)-[:CAPTURES]->(Eve09),
+(Eve09)-[:IS_CAPTURED]->(Clan01),
+(Dwa13)-[:FALLS_ASLEEP {cause:'falls into The Black Steam'}]->(Eve09),
+(Hob01)-[:ESCAPES]->(Eve09),
+//
+//Chapter 9
+(Eve10:Event {Action:'The Company Flees the Wood Elves'}),
+(Eve10)-[:LOCATED_IN]->(Loc09),
+(Eve10)-[:OCCURS_IN]->(Cha09),
+(Hob01)-[:RESCUES]->(Eve10),
+(Eve10)-[:IS_RESCUED]->(Clan01),
+//
+//Chapter 10
+(Eve11:Event {Action:'The Company Rests in Esgaroth'}),
+(Eve11)-[:LOCATED_IN]->(Loc10),
+(Eve11)-[:OCCURS_IN]->(Cha10),
+(Clan01)-[:RESTS]->(Eve11),
+//
+//Chapter 11
+(Eve12:Event {Action:'A Path into the Lonely Mountain is Discovered'}),
+(Eve12)-[:LOCATED_IN]->(Loc12),
+(Eve12)-[:OCCURS_IN]->(Cha11),
+(Hob01)-[:FINDS_DOOR]->(Eve12),
+(Ite02)-[:OPENS_DOOR]->(Eve12),
+//
+//Chapter 12
+(Eve13:Event {Action:'Bilbo Spies on Smaug'}),
+(Eve13)-[:LOCATED_IN]->(Loc12),
+(Eve13)-[:OCCURS_IN]->(Cha12),
+(Hob01)-[:SPIES]->(Eve13)-[:IS_SPIED_UPON]->(Dra01),
+//
+//Chapter 13
+(Eve14:Event {Action:'Bilbo Steals the Arkenstone'}),
+(Eve14)-[:LOCATED_IN]->(Loc12),
+(Eve14)-[:OCCURS_IN]->(Cha13),
+(Hob01)-[:Steals]->(Ite04),
+(Ite04)-[:IS_STOLEN]->(Eve14),
+//
+//Chapter 14
+(Eve15:Event {Action:'Smaug Destroys Laketown, Bard Kills Smaug'}),
+(Eve14)-[:LOCATED_IN]->(Loc10),
+(Eve14)-[:OCCURS_IN]->(Cha14),
+(Dra01)-[:DESTROYS]->(Loc10),
+(Loc10)-[:IS_DESTROYED]->(Eve14),
+(Men01)-[:KILLS]->(Dra01),
+(Dra01)-[:IS_KILLED]->(Eve15),
+(Elv02)-[:ARRIVES]->(Eve15),
+(Bir02)-[:REPORTS_DEATH]->(Dwa01),
+(Dwa01)-[:LEARNS_OF_SMAUGDEATH]->(Eve15),
+(Men01)-[:CROWNED_MASTER_OF]->(Eve15),
+//
+//Chapter 15
+(Eve16:Event {Action:'The Company Prepares for War'}),
+(Eve16)-[:LOCATED_IN]->(Loc12),
+(Eve16)-[:OCCURS_IN]->(Cha15),
+(Clan01)-[:BARRICADES_THEMSELVES]->(Eve16),
+(Dwa01)-[:OVERCOME_WITH_GREED]->(Eve16),
+(Men01)-[:ASKS_FOR_TREASURE]->(Eve16),
+(Elv02)-[:JOINS]->(Men01),
+//
+//Chapter 16
+(Eve17:Event {Action:'Bilbo Gives Away Arkenstone'}),
+(Eve17)-[:LOCATED_IN]->(Loc10),
+(Eve17)-[:OCCURS_IN]->(Cha16),
+(Hob01)-[:GIVES_AWAY]->(Ite04),
+(Ite04)-[:GIVEN_TO]->(Men01),
+//
+//Chapter 17
+(Eve18:Event {Action:'The Battle of Five Armies'}),
+(Eve18)-[:LOCATED_IN]->(Loc12),
+(Eve18)-[:OCCURS_IN]->(Cha17),
+(Clan01)-[:FIGHTS_IN]->(Eve18),
+(Clan03)-[:FIGHTS_IN]->(Eve18),
+(Clan04)-[:FIGHTS_IN]->(Eve18),
+(Clan05)-[:FIGHTS_IN]->(Eve18),
+(Clan06)-[:FIGHTS_IN]->(Eve18),
+(Bir01)-[:FIGHTS_IN]->(Eve18),
+(Men02)-[:FIGHTS_IN]->(Eve18),
+(Hob01)-[:HIDES_DURING]->(Eve18),
+//
+//Chapter 18
+(Eve19:Event {Action:'Aftermath of the Battle of Five Armies'}),
+(Eve19)-[:LOCATED_IN]->(Loc12),
+(Eve19)-[:OCCURS_IN]->(Cha18),
+(Dwa01)-[:DIES]->(Eve19),
+(Dwa02)-[:DIES]->(Eve19),
+(Dwa03)-[:DIES]->(Eve19),
+//
+//Chapter 19
+(Eve20:Event {Action:'Aftermath of the Battle of Five Armies'}),
+(Eve20)-[:LOCATED_IN]->(Loc12),
+(Eve20)-[:OCCURS_IN]->(Cha19),
+(Dwa14)-[:CROWNED_KING]->(Eve20),
+(Hob01)-[:RECIEVES_TREASURE]->(Eve20),
+//
+(Eve21:Event {Action:'Bilbo, Gandalf, and Beorn Return Home'}),
+(Eve21)-[:OCCURS_IN]->(Cha19),
+//
+(Eve22:Event {Action:'The Home of Bilbo and his possessions are Auctioned'}),
+(Eve22)-[:LOCATED_IN]->(Loc02),
+(Eve22)-[:OCCURS_IN]->(Cha19),
+//
+(Sup01:Alignment {Alignment:'Good'}),
+(Sup02:Alignment {Alignment:'Evil'}),
+(Sup03:Alignment {Alignment:'Neutral'}),
+//
+(Clan01)-[:IS_ALIGNED]->(Sup01),
+(Clan02)-[:IS_ALIGNED]->(Sup01),
+(Clan03)-[:IS_ALIGNED]->(Sup02),
+(Clan04)-[:IS_ALIGNED]->(Sup01),
+(Clan05)-[:IS_ALIGNED]->(Sup01),
+(Clan06)-[:IS_ALIGNED]->(Sup01),
+(Men02)-[:IS_ALIGNED]->(Sup01);
+
+
+----
+== Graph
+
+We can see that a "story" looks a lot like a rat's nest. Characters are related to actions, are related to sub-plots, are related to descriptions, etc., etc. Cypher allows us to easily parse out where we want to look, what we want to look at, and how those data points are related. 
+
+//graph
+
+== 'Queries in the Dark'
+
+=== Asking Our Graph Some Questions
+
+*"How many chapters are in this book?"*
+
+[source, cypher]
+----
+match (n:Chapter) return (count(*)) AS Number_of_Chapters
+----
+//table
+
+You're probably so excited about http://en.wikipedia.org/wiki/The_Hobbit:_The_Battle_of_the_Five_Armies[The Hobbit: Battle of Five Armies] that you're gonna make a t-shirt but...you've completely forgotten who's fighting and your http://en.wikipedia.org/wiki/Team_Edward[Team Edward] shirt just isn't going to cut it. 
+
+*"Who fought in the Battle of Five Armies?"*
+
+[source,cypher]
+----
+
+match (n)-[:FIGHTS_IN]-(Battle:Event {Action:'The Battle of Five Armies'}), (n)-[:IS_ALIGNED]-(a:Alignment)
+return a.Alignment AS Alignment, n.name AS Combatants
+
+----
+//table
+
+Pretty cool...who's this Bjorn guy, isn't he like a http://en.wikipedia.org/wiki/Bj%C3%B6rn_Borg[Swedish tennis-guy]?
+
+*"Who is Beorn?"*
+
+[source,cypher]
+----
+
+MATCH (a)-[r]->(What)
+WHERE labels(a) <> [] AND labels(What) <> [] AND a.name='Beorn'
+RETURN DISTINCT head((a.name)) AS BEORN, type(r) as IS_OR_DOES, What AS THIS 
+
+----
+//table
+
+=== Neo4Cartography 
+
+Let's talk about maps.
+
+The spatial domain I've chosen for this gist is a fairly simple one, however the same principals continue to apply over more complex models. A coordinate system can be graphed as a series of relationships between points. For this gist I was only concerned where places were in orientation to one another. E.g., "What direction should I head from The Hobbiton to get to The Lonely Mountain?" North?
+
+This:
+
+image::http://i.imgur.com/q8yKTXR.jpg?1[] 
+
+Becomes:
+
+*"How do I get to the Lonely Mountain via the shortest path?"*
+
+[source,cypher]
+----
+
+MATCH (Hobbiton:Location {name:'Hobbiton'}), (LonelyMtn:Location {name:'Lonely Mountain'}), 
+Road_to_Smaug = shortestPath((Hobbiton)-[:LOCATED*..15]-(LonelyMtn))
+RETURN Road_to_Smaug
+----
+
+//graph_result
+
+
+=== Neo4StoryTime
+
+Kevin! I don't have time to read the hobbit, just tell me the story in order using Neo4j.
+
+*"What are the major events and in which chapter did they occur?"* 
+
+[source,cypher]
+----
+
+MATCH (Chapter:Chapter)-[]-(Event:Event)
+RETURN Chapter.chap AS Chapter, Chapter.title AS Chapter_Title, Event.Action AS What_Happened
+ORDER BY (Chapter.chap)
+
+----
+//table
+
+=== Ordering Specific Events
+ 
+I mentioned earlier that we were using a timeline and a series of event nodes to keep track of what happens when. Obviously using chapters as timeline markers is not as granular as it could be, but for figuring out if Bilbo finds the ring before he spies on Smaug it works well enough. 
+
+*"Which happened first,* 'Bilbo Finds the Ring' *or* 'Bilbo Spies on Smaug'*?"*
+
+[source,cypher]
+----
+
+MATCH
+(FTR:Event { Action:'Bilbo Finds the One Ring' })-[]-(F_Chap:Chapter),
+(SPY:Event { Action:'Bilbo Spies on Smaug' })-[]-(S_Chap:Chapter)
+RETURN FTR.Action, F_Chap.chap AS Find_Chapter, SPY.Action , S_Chap.chap AS Spy_Chapter
+ORDER BY F_Chap.chap
+
+----
+//table
+
+We see that in Chapter 5 Bilbo finds the ring and not until Chapter 12 does he spy on Smaug.
+
+=== The End.
+
+
