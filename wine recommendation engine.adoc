@@ -1,0 +1,311 @@
+= How to be Cool at Wine Parties 
+
+:author: Kevin "I Have No Idea What I'm Doing" Van Gundy
+:twitter: @KevinVanGundy
+:tags: wine, wine, wine
+
+
+[cols="1*"]
+|===
+a|image::http://i.imgur.com/JiUtwPt.jpg?1[]
+|===
+
+You know the feeling. You're standing in the wine aisle, entirely confused. An ocean of reds and whites and everything in between before you. You're anxious. You're on your way to Tad and Jeanne's house and you can't bring the wrong wine, not after the pleated jeans incident. 
+
+*WHAT. WINE. SHOULD. I. BUY?*
+
+== Domain Model
+
+[cols="1*", align = zcenter"]
+|===
+a|image::http://i.imgur.com/c75gYMYl.png?1[]
+|===
+
+== Setup
+
+//hide
+//setup
+Click the Plus to see the Cypher
+[source,cypher]
+----
+CREATE
+//Wine Types
+(c01:Classification {name:'Dry White'}),
+(w01:Wine {name:'White Table Wine'}),
+(w02:Wine {name:'Gruner Veltliner'}),
+(w03:Wine {name:'Sauvignon Blanc'}),
+(w04:Wine {name:'Pinot Grigio'}),
+(w05:Wine {name:'Albarino'}),
+(w01)-[:CLASSIFIED_AS]->(c01),
+(w02)-[:CLASSIFIED_AS]->(c01),
+(w03)-[:CLASSIFIED_AS]->(c01),
+(w04)-[:CLASSIFIED_AS]->(c01),
+(w05)-[:CLASSIFIED_AS]->(c01),
+//
+(c02:Classification {name:'Sweet White'}),
+(w06:Wine {name:'Gewurztraminer'}),
+(w07:Wine {name:'Muller-Thurgau'}),
+(w08:Wine {name:'Malvasia'}),
+(w09:Wine {name:'Moscato'}),
+(w10:Wine {name:'Riesling'}),
+(w06)-[:CLASSIFIED_AS]->(c02),
+(w07)-[:CLASSIFIED_AS]->(c02),
+(w08)-[:CLASSIFIED_AS]->(c02),
+(w09)-[:CLASSIFIED_AS]->(c02),
+(w10)-[:CLASSIFIED_AS]->(c02),
+//
+(c03:Classification {name:'Rich White'}),
+(w11:Wine {name:'Chardonnay'}),
+(w12:Wine {name:'Roussanne'}),
+(w13:Wine {name:'Marsanne'}),
+(w14:Wine {name:'Voignier'}),
+(w11)-[:CLASSIFIED_AS]->(c03),
+(w12)-[:CLASSIFIED_AS]->(c03),
+(w13)-[:CLASSIFIED_AS]->(c03),
+(w14)-[:CLASSIFIED_AS]->(c03),
+//
+(c04:Classification {name:'Sparkling'}),
+(w15:Wine {name:'Sparking Wine'}),
+(w16:Wine {name:'Champagne'}),
+(w17:Wine {name:'Prosecco'}),
+(w18:Wine {name:'Cava'}),
+(w15)-[:CLASSIFIED_AS]->(c04),
+(w16)-[:CLASSIFIED_AS]->(c04),
+(w17)-[:CLASSIFIED_AS]->(c04),
+(w18)-[:CLASSIFIED_AS]->(c04),
+//
+(c05:Classification {name:'Light Red'}),
+(w19:Wine {name:'St.Laurent'}),
+(w20:Wine {name:'Pinot Noir'}),
+(w21:Wine {name:'Zweigelt'}),
+(w22:Wine {name:'Gamay'}),
+(w19)-[:CLASSIFIED_AS]->(c05),
+(w20)-[:CLASSIFIED_AS]->(c05),
+(w21)-[:CLASSIFIED_AS]->(c05),
+(w22)-[:CLASSIFIED_AS]->(c05),
+//
+(c06:Classification {name:'Medium Red'}),
+(w23:Wine {name:'Red Table Wine'}),
+(w24:Wine {name:'Tempranillo'}),
+(w25:Wine {name:'Sangiovese'}),
+(w26:Wine {name:'Zinfandel'}),
+(w27:Wine {name:'Grenache'}),
+(w28:Wine {name:'Merlot'}),
+(w23)-[:CLASSIFIED_AS]->(c06),
+(w24)-[:CLASSIFIED_AS]->(c06),
+(w25)-[:CLASSIFIED_AS]->(c06),
+(w26)-[:CLASSIFIED_AS]->(c06),
+(w27)-[:CLASSIFIED_AS]->(c06),
+(w28)-[:CLASSIFIED_AS]->(c06),
+//
+(c07:Classification {name:'Bold Red'}),
+(w29:Wine {name:'Cabernet Sauvignon'}),
+(w30:Wine {name:'Monastrell'}),
+(w31:Wine {name:'Aglianico'}),
+(w32:Wine {name:'Malbec'}),
+(w33:Wine {name:'Syrah'}),
+(w29)-[:CLASSIFIED_AS]->(c07),
+(w30)-[:CLASSIFIED_AS]->(c07),
+(w31)-[:CLASSIFIED_AS]->(c07),
+(w32)-[:CLASSIFIED_AS]->(c07),
+(w33)-[:CLASSIFIED_AS]->(c07),
+//
+(c08:Classification {name:'Dessert'}),
+(w34:Wine {name:'Late Harvest'}),
+(w35:Wine {name:'Ice Wine'}),
+(w36:Wine {name:'Sherry'}),
+(w37:Wine {name:'Port'}),
+(w34)-[:CLASSIFIED_AS]->(c08),
+(w35)-[:CLASSIFIED_AS]->(c08),
+(w36)-[:CLASSIFIED_AS]->(c08),
+(w37)-[:CLASSIFIED_AS]->(c08),
+//
+//Food Types and Pairings
+(f01:Food {name:'Fresh Vegetables'}),
+(f01)-[:PAIRS_WITH]->(c01),
+(f01)-[:PAIRS_WITH]->(c04),
+//
+(f02:Food {name:'Roasted Vegetables'}),
+(f02)-[:PAIRS_WITH]->(c01),
+(f02)-[:PAIRS_WITH]->(c05),
+(f02)-[:PAIRS_WITH]->(c06),
+//
+(f03:Food {name:'Soft Cheese'}),
+(f03)-[:PAIRS_WITH]->(c02),
+(f03)-[:PAIRS_WITH]->(c03),
+(f03)-[:PAIRS_WITH]->(c04),
+(f03)-[:PAIRS_WITH]->(c08),
+//
+(f04:Food {name:'Hard Cheese'}),
+(f04)-[:PAIRS_WITH]->(c02),
+(f04)-[:PAIRS_WITH]->(c04),
+(f04)-[:PAIRS_WITH]->(c06),
+(f04)-[:PAIRS_WITH]->(c07),
+//
+(f05:Food {name:'Starches'}),
+(f05)-[:PAIRS_WITH]->(c01),
+(f05)-[:PAIRS_WITH]->(c03),
+(f05)-[:PAIRS_WITH]->(c04),
+(f05)-[:PAIRS_WITH]->(c05),
+(f05)-[:PAIRS_WITH]->(c06),
+(f05)-[:PAIRS_WITH]->(c07),
+(f05)-[:PAIRS_WITH]->(c08),
+//
+(f06:Food {name:'Light Fish'}),
+(f06)-[:PAIRS_WITH]->(c01),
+(f06)-[:PAIRS_WITH]->(c03),
+(f06)-[:PAIRS_WITH]->(c04),
+//
+(f07:Food {name:'Rich Fish'}),
+(f07)-[:PAIRS_WITH]->(c05),
+(f07)-[:PAIRS_WITH]->(c03),
+//
+(f08:Food {name:'White Meat'}),
+(f08)-[:PAIRS_WITH]->(c03),
+(f08)-[:PAIRS_WITH]->(c05),
+(f08)-[:PAIRS_WITH]->(c06),
+//
+(f09:Food {name:'Red Meat'}),
+(f09)-[:PAIRS_WITH]->(c06),
+(f09)-[:PAIRS_WITH]->(c07),
+//
+(f10:Food {name:'Cured Meat'}),
+(f10)-[:PAIRS_WITH]->(c02),
+(f10)-[:PAIRS_WITH]->(c05),
+(f10)-[:PAIRS_WITH]->(c06),
+(f10)-[:PAIRS_WITH]->(c07),
+(f10)-[:PAIRS_WITH]->(c08),
+//
+(f11:Food {name:'Sweets'}),
+(f11)-[:PAIRS_WITH]->(c02),
+(f11)-[:PAIRS_WITH]->(c08),
+//
+//Flavors
+//
+(t01:Flavor {name:'Bitter (Tannin)'}),
+(t02:Flavor {name:'Fat'}),
+(t03:Flavor {name:'Acid'}),
+(t04:Flavor {name:'Salt'}),
+(t05:Flavor {name:'Sweet'}),
+(t06:Flavor {name:'Alcohol'}),
+(t01)-[:COMPLIMENTARY]->(f05),
+(t03)-[:COMPLIMENTARY]->(f05),
+(t02)-[:COMPLIMENTARY]->(f06),
+(t02)-[:COMPLIMENTARY]->(f03),
+(t01)-[:CONGRUENT]->(f02),
+(t02)-[:CONGRUENT]->(f03),
+(t03)-[:CONGRUENT]->(f04),
+(t04)-[:CONGRUENT]->(f05),
+(t05)-[:CONGRUENT]->(f06),
+(t02)-[:CONGRUENT]->(f04),
+(t02)-[:CONGRUENT]->(f05),
+//
+//Assigning Categories 
+(c01)-[:FLAVOR_FAMILY {weight:5}]->(t03),
+(c01)-[:FLAVOR_FAMILY {weight:5}]->(t01),
+//
+(c02)-[:FLAVOR_FAMILY {weight:3}]->(t03),
+(c02)-[:FLAVOR_FAMILY {weight:3}]->(t01),
+//
+(c03)-[:FLAVOR_FAMILY {weight:1}]->(t01),
+(c03)-[:FLAVOR_FAMILY {weight:1}]->(t03),
+//
+(c04)-[:FLAVOR_FAMILY {weight:1}]->(t06),
+(c04)-[:FLAVOR_FAMILY {weight:1}]->(t01),
+(c04)-[:FLAVOR_FAMILY {weight:2}]->(t05),
+//
+(c05)-[:FLAVOR_FAMILY {weight:1}]->(t02),
+(c05)-[:FLAVOR_FAMILY {weight:1}]->(t05),
+(c05)-[:FLAVOR_FAMILY {weight:1}]->(t06),
+//
+(c06)-[:FLAVOR_FAMILY {weight:3}]->(t02),
+(c06)-[:FLAVOR_FAMILY {weight:3}]->(t05),
+(c06)-[:FLAVOR_FAMILY {weight:3}]->(t06),
+(c06)-[:FLAVOR_FAMILY {weight:2}]->(t01),
+//
+(c07)-[:FLAVOR_FAMILY {weight:4}]->(t02),
+(c07)-[:FLAVOR_FAMILY {weight:3.5}]->(t05),
+(c07)-[:FLAVOR_FAMILY {weight:4}]->(t06),
+(c07)-[:FLAVOR_FAMILY {weight:2}]->(t01),
+//
+(c07)-[:FLAVOR_FAMILY {weight:5}]->(t05),
+(c07)-[:FLAVOR_FAMILY {weight:5}]->(t05),
+(c07)-[:FLAVOR_FAMILY {weight:5}]->(t05),
+(c07)-[:FLAVOR_FAMILY {weight:2}]->(t01),
+//
+(c08)-[:FLAVOR_FAMILY {weight:6}]->(t05),
+(c08)-[:FLAVOR_FAMILY {weight:5}]->(t06),
+(c08)-[:FLAVOR_FAMILY {weight:2}]->(t02);
+
+----
+== Graph
+
+//graph
+
+= Getting Recommendations From Our Graph
+
+== "What wines have the most bitter/tannin flavor?"
+
+You remember that Tad is really pretentious and only likes dry wines with lots of "crisp tannin flavoring..." 
+
+[source, cypher]
+----
+MATCH (w:Wine)-[]-(n:Classification)-[r:FLAVOR_FAMILY]-(t:Flavor {name:'Bitter (Tannin)'})
+RETURN w.name AS NAME, t.name AS FLAVOR, r.weight AS HOW_BITTER
+ORDER BY r.weight DESC LIMIT 8
+----
+//table
+
+==== What's happening here? 
+
+We're asking Neo4j to find a pattern that moves up a hierarchy, insofar as we're looking wines who belong to categories. These categories have specific flavor profiles, the severity of each of these flavor notes is carried in an integer on its relationship to that flavor called "weight." We then can ask Neo4j to tell us the top 8 wines found in the categories who have the strongest bitter quality.
+
+== "Does White Table Wine pair with Fish?"
+
+That's pretty neat, but I think we're having fish-stick sandwiches, does a White Table Wine pair well with that?
+
+[source,cypher]
+----
+match (w:Wine {name:'White Table Wine'})-[]-(c:Classification)-[:PAIRS_WITH]-(fishsticks:Food {name:'Light Fish'})
+return w.name AS THIS_WINE, c.name AS IS_A, fishsticks.name AS WHICH_COMPLIMENTS_THIS
+----
+//table
+
+==== What's happening here? 
+
+We're asking Neo4j to check if the node "*White Table Wine*" has a relationship labeled +:PAIRS_WITH+ associated with a node that has a name property "Light Fish". If Neo4j returns no matches we know that no, that wine does not _pair with_ that food. 
+
+E.g., 
+
+[source,cypher]
+----
+match (w:Wine {name:'White Table Wine'})-[]-(c:Classification)-[:PAIRS_WITH]-(fishsticks:Food {name:'Rich Fish'})
+return w.name AS THIS_WINE, c.name AS IS_A, fishsticks.name AS WHICH_COMPLIMENTS_THIS
+----
+//table  
+
+== "What wines are the sweetest and richest (fat)?"
+
+_identifying recommendations based on two flavors_
+
+Pretty cool...but you're more into sweet, rich wine. Can we find what sorts of wines are most sweet and most fatty?
+
+[source,cypher]
+----
+
+MATCH
+a = (t:Flavor {name:'Fat'})-[:FLAVOR_FAMILY]-(n:Classification)-[:FLAVOR_FAMILY]-(tt:Flavor {name:'Sweet'}), (w:Wine)
+WHERE (n:Classification)-[:CLASSIFIED_AS]-(w:Wine)
+RETURN
+DISTINCT(w.name), reduce(profile=0, p in relationships(a)| profile + p.weight) AS SCORE
+ORDER BY SCORE DESC LIMIT 10
+
+----
+//table
+
+==== What's happening here? 
+
+Neo4j is looks through the graph for the pattern highlighted in green, when that patten is identified it also checks if the "*Wine Category*" node has a relationship with a node that carries the label "*Wine.*"  We ask it using the [http://docs.neo4j.org/chunked/stable/query-functions-collection.html#functions-reduce]+REDUCE+ command to sum the integers carried in the relationship property named "weight". We ask for 10 +DISTINCT+ results ordered by the most weight (the highest total values of our desired wine flavors). 
+
+=== The End.
+
