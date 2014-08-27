@@ -1,0 +1,598 @@
+= Yo GraphGist 
+
+:author: Kevin "Yo" Van Gundy
+:twitter: @KevinVanGundy
+:tags: Yo, Yoyo, YO!
+
+[cols="1*"]
+|===
+a|image::http://i.imgur.com/3TBd0fal.png[Yo yo yo, 640, 265]
+|===
+
+== The Daringly Disruptive Yo
+
+http://techcrunch.com/2014/08/12/yo-grows-up/[Yo.]
+
+When "hello" is trying too hard and "hey" is so 2000-and-late. Yo is now the next evolution, no-- REVOLUTION of peer-to-peer push-notifying social networks. The engineers at Yo have worked tirelessly developing an application that is so simple, so profound, so mind-boggingly amazing, that you'll be kicking yourself that you didn't think of it first.
+
+http://en.wikipedia.org/wiki/Facebook[Facebook] has the social graph, http://en.wikipedia.org/wiki/Google[Google] has the knowledge graph, and now you and I have the unique, magnificent, idiosyncratic, though monosyllabic: http://gist.neo4j.org/?fb0e845f034f18215e8d["Yo Graph."]
+
+
+
+== Yo <<Top, ^Yo^>>
+
+Sure, http://en.wikipedia.org/wiki/Neo4j[Neo4j] can power your picosecond-slicing, breaking-news-busting  http://en.wikipedia.org/wiki/Algorithmic_trading[quant-trading algorithm]. Sure, it can keep pace with your hockey-stick-curve-growing irrational-valuation-demanding http://en.wikipedia.org/wiki/Social_network[social-network-disrupting start-up]. Yup, whatever, it can map billion dollar telecom networks so beautifully that your ninja-rockstar-pirate developer team can hear http://en.wikipedia.org/wiki/M._C._Escher[M.C. Escher] rolling in his grave. 
+
+But, did you know that if the http://en.wikipedia.org/wiki/MGM_Grand_Las_Vegas[MGM Grand] had used Neo4j, http://en.wikipedia.org/wiki/Ocean%27s_11[Ocean's 11] would have been a 15 minute short and http://en.wikipedia.org/wiki/Ocean%27s_Twelve[Ocean's 12] would have been the story of how Danny Ocean and a gaggle of outrageously attractive prisoners endeared themselves to a wise-cracking warden? Did you know that if http://en.wikipedia.org/wiki/Sauron[Sauron] had used http://www.neo4j.org/develop/spatial[Neo4j Spatial] to keep track of the ring better, http://en.wikipedia.org/wiki/Middle_earth[Middle-Earth] would have been drastically redecorated before the end of http://en.wikipedia.org/wiki/Lord_of_the_rings[The Two Towers]?
+
+[cols="1*"]
+|===
+a|image::http://i.imgur.com/5o91hBb.gif[]
+|===
+
+Yes I do http://en.wikipedia.org/wiki/Samwise_Gamgee[Sam], Yes I do. 
+  
+Lastly and most importantly--did you know that Neo4j can map your YOs? Do you ever wonder if YOYOYOYO'ing is cool yet? Or if your friends are yo'ing their http://en.wikipedia.org/wiki/Hashtag[hashtags] instead of hashtagging their #YOs? 
+
+Never fear, Neo4j is here.  
+
+== Yo, Here's the Setup. <<Top, ^Yo^>>
+Click the + to see the full set-up Cypher script.
+//setup
+//hide
+
+[source,cypher]
+
+----
+//Here's where we create the yo-(u)sers
+CREATE
+(yo1 {name:'Sophia', yo:'yo'}),
+(yo2 {name:'Emma', yo:'yo'}),
+(yo3 {name:'Olivia', yo:'yo'}),
+(yo4 {name:'Isabella', yo:'yo'}),
+(yo5 {name:'Mia', yo:'yo'}),
+(yo6 {name:'Ava', yo:'yo'}),
+(yo7 {name:'Lily', yo:'yo'}),
+(yo8 {name:'Zoe', yo:'yo'}),
+(yo9 {name:'Emily', yo:'yo'}),
+(yo10 {name:'Chloe', yo:'yo'}),
+(yo11 {name:'Layla', yo:'yo'}),
+(yo12 {name:'Madison', yo:'yo'}),
+(yo13 {name:'Madelyn', yo:'yo'}),
+(yo14 {name:'Abigail', yo:'yo'}),
+(yo15 {name:'Aubrey', yo:'yo'}),
+(yo16 {name:'Charlotte', yo:'yo'}),
+(yo17 {name:'Neo Technology', yo:'yo'}),
+(yo18 {name:'Ella', yo:'yo'}),
+(yo19 {name:'Kaylee', yo:'yo'}),
+(yo20 {name:'Avery', yo:'yo'}),
+(yo21 {name:'Aaliyah', yo:'yo'}),
+(yo22 {name:'Hailey', yo:'yo'}),
+(yo23 {name:'Hannah', yo:'yo'}),
+(yo24 {name:'Addison', yo:'yo'}),
+(yo25 {name:'Riley', yo:'yo'}),
+(yo26 {name:'Harper', yo:'yo'}),
+(yo27 {name:'Aria', yo:'yo'}),
+(yo28 {name:'Arianna', yo:'yo'}),
+(yo29 {name:'Mackenzie', yo:'yo'}),
+(yo30 {name:'Lila', yo:'yo'}),
+(yo31 {name:'Evelyn', yo:'yo'}),
+(yo32 {name:'Adalyn', yo:'yo'}),
+(yo33 {name:'Grace', yo:'yo'}),
+(yo34 {name:'Brooklyn', yo:'yo'}),
+(yo35 {name:'Ellie', yo:'yo'}),
+(yo36 {name:'Anna', yo:'yo'}),
+(yo37 {name:'Kaitlyn', yo:'yo'}),
+(yo38 {name:'Isabelle', yo:'yo'}),
+(yo39 {name:'Sophie', yo:'yo'}),
+(yo40 {name:'Scarlett', yo:'yo'}),
+(yo41 {name:'Natalie', yo:'yo'}),
+(yo42 {name:'Leah', yo:'yo'}),
+(yo43 {name:'Sarah', yo:'yo'}),
+(yo44 {name:'Nora', yo:'yo'}),
+(yo45 {name:'Mila', yo:'yo'}),
+(yo46 {name:'Elizabeth', yo:'yo'}),
+(yo47 {name:'Lillian', yo:'yo'}),
+(yo48 {name:'Kylie', yo:'yo'}),
+(yo49 {name:'Audrey', yo:'yo'}),
+(yo50 {name:'Lucy', yo:'yo'}),
+(yo51 {name:'Jackson', yo:'yo'}),
+(yo52 {name:'Aiden', yo:'yo'}),
+(yo53 {name:'Liam', yo:'yo'}),
+(yo54 {name:'Lucas', yo:'yo'}),
+(yo55 {name:'Noah', yo:'yo'}),
+(yo56 {name:'Mason', yo:'yo'}),
+(yo57 {name:'Jayden', yo:'yo'}),
+(yo58 {name:'Ethan', yo:'yo'}),
+(yo59 {name:'Jacob', yo:'yo'}),
+(yo60 {name:'Jack', yo:'yo'}),
+(yo61 {name:'Caden', yo:'yo'}),
+(yo62 {name:'Logan', yo:'yo'}),
+(yo63 {name:'Benjamin', yo:'yo'}),
+(yo64 {name:'Michael', yo:'yo'}),
+(yo65 {name:'Caleb', yo:'yo'}),
+(yo66 {name:'Ryan', yo:'yo'}),
+(yo67 {name:'Alexander', yo:'yo'}),
+(yo68 {name:'Elijah', yo:'yo'}),
+(yo69 {name:'James', yo:'yo'}),
+(yo70 {name:'William', yo:'yo'}),
+(yo71 {name:'Oliver', yo:'yo'}),
+(yo72 {name:'Connor', yo:'yo'}),
+(yo73 {name:'Matthew', yo:'yo'}),
+(yo74 {name:'Daniel', yo:'yo'}),
+(yo75 {name:'Luke', yo:'yo'}),
+(yo76 {name:'Brayden', yo:'yo'}),
+(yo77 {name:'Jayce', yo:'yo'}),
+(yo78 {name:'Henry', yo:'yo'}),
+(yo79 {name:'Carter', yo:'yo'}),
+(yo80 {name:'Dylan', yo:'yo'}),
+(yo81 {name:'Gabriel', yo:'yo'}),
+(yo82 {name:'Joshua', yo:'yo'}),
+(yo83 {name:'Kevin', yo:'yo'}),
+(yo84 {name:'Emil', yo:'yo'}),
+(yo85 {name:'Owen', yo:'yo'}),
+(yo86 {name:'Nathan', yo:'yo'}),
+(yo87 {name:'Grayson', yo:'yo'}),
+(yo88 {name:'Eli', yo:'yo'}),
+(yo89 {name:'Landon', yo:'yo'}),
+(yo90 {name:'Andrew', yo:'yo'}),
+(yo91 {name:'Max', yo:'yo'}),
+(yo92 {name:'Samuel', yo:'yo'}),
+(yo93 {name:'Gavin', yo:'yo'}),
+(yo94 {name:'Wyatt', yo:'yo'}),
+(yo95 {name:'Christian', yo:'yo'}),
+(yo96 {name:'Hunter', yo:'yo'}),
+(yo97 {name:'Cameron', yo:'yo'}),
+(yo98 {name:'Evan', yo:'yo'}),
+(yo99 {name:'Charlie', yo:'yo'}),
+(yo100 {name:'David', yo:'yo'}),
+(yo101 {name:'Maya', yo:'yo'}),
+(yo102 {name:'Annabelle', yo:'yo'}),
+(yo103 {name:'Kenny', yo:'yo'}),
+(yo104 {name:'Gabriella', yo:'yo'}),
+(yo105 {name:'Elena', yo:'yo'}),
+(yo106 {name:'Greta', yo:'yo'}),
+(yo107 {name:'Claire', yo:'yo'}),
+(yo108 {name:'Savannah', yo:'yo'}),
+(yo109 {name:'Peyton', yo:'yo'}),
+(yo110 {name:'Maria', yo:'yo'}),
+(yo111 {name:'Alaina', yo:'yo'}),
+(yo112 {name:'Kennedy', yo:'yo'}),
+(yo113 {name:'Stella', yo:'yo'}),
+(yo114 {name:'Liliana', yo:'yo'}),
+(yo115 {name:'Allison', yo:'yo'}),
+(yo116 {name:'Samantha', yo:'yo'}),
+(yo117 {name:'Keira', yo:'yo'}),
+(yo118 {name:'Alyssa', yo:'yo'}),
+(yo119 {name:'Reagan', yo:'yo'}),
+(yo120 {name:'Molly', yo:'yo'}),
+(yo121 {name:'Alexandra', yo:'yo'}),
+(yo122 {name:'Violet', yo:'yo'}),
+(yo123 {name:'Charlie', yo:'yo'}),
+(yo124 {name:'Julia', yo:'yo'}),
+(yo125 {name:'Sadie', yo:'yo'}),
+(yo126 {name:'Ruby', yo:'yo'}),
+(yo127 {name:'Eva', yo:'yo'}),
+(yo128 {name:'Alice', yo:'yo'}),
+(yo129 {name:'Eliana', yo:'yo'}),
+(yo130 {name:'Taylor', yo:'yo'}),
+(yo131 {name:'Callie', yo:'yo'}),
+(yo132 {name:'Penelope', yo:'yo'}),
+(yo133 {name:'Camilla', yo:'yo'}),
+(yo134 {name:'Bailey', yo:'yo'}),
+(yo135 {name:'Kaelyn', yo:'yo'}),
+(yo136 {name:'Alexis', yo:'yo'}),
+(yo137 {name:'Kayla', yo:'yo'}),
+(yo138 {name:'Katherine', yo:'yo'}),
+(yo139 {name:'Sydney', yo:'yo'}),
+(yo140 {name:'Lauren', yo:'yo'}),
+(yo141 {name:'Jasmine', yo:'yo'}),
+(yo142 {name:'London', yo:'yo'}),
+(yo143 {name:'Bella', yo:'yo'}),
+(yo144 {name:'Adeline', yo:'yo'}),
+(yo145 {name:'Caroline', yo:'yo'}),
+(yo146 {name:'Vivian', yo:'yo'}),
+(yo147 {name:'Juliana', yo:'yo'}),
+(yo148 {name:'Gianna', yo:'yo'}),
+(yo149 {name:'Skyler', yo:'yo'}),
+(yo150 {name:'Jordyn', yo:'yo'}),
+(yo151 {name:'Sebastian', yo:'yo'}),
+(yo152 {name:'Joseph', yo:'yo'}),
+(yo153 {name:'Dominic', yo:'yo'}),
+(yo154 {name:'Anthony', yo:'yo'}),
+(yo155 {name:'Colton', yo:'yo'}),
+(yo156 {name:'John', yo:'yo'}),
+(yo157 {name:'Tyler', yo:'yo'}),
+(yo158 {name:'Zachary', yo:'yo'}),
+(yo159 {name:'Thomas', yo:'yo'}),
+(yo160 {name:'Julian', yo:'yo'}),
+(yo161 {name:'Levi', yo:'yo'}),
+(yo162 {name:'Adam', yo:'yo'}),
+(yo163 {name:'Isaiah', yo:'yo'}),
+(yo164 {name:'Alex', yo:'yo'}),
+(yo165 {name:'Aaron', yo:'yo'}),
+(yo166 {name:'Parker', yo:'yo'}),
+(yo167 {name:'Cooper', yo:'yo'}),
+(yo168 {name:'Miles', yo:'yo'}),
+(yo169 {name:'Chase', yo:'yo'}),
+(yo170 {name:'Muhammad', yo:'yo'}),
+(yo171 {name:'Christopher', yo:'yo'}),
+(yo172 {name:'Blake', yo:'yo'}),
+(yo173 {name:'Austin', yo:'yo'}),
+(yo174 {name:'Jordan', yo:'yo'}),
+(yo175 {name:'Leo', yo:'yo'}),
+(yo176 {name:'Jonathan', yo:'yo'}),
+(yo177 {name:'Adrian', yo:'yo'}),
+(yo178 {name:'Colin', yo:'yo'}),
+(yo179 {name:'Hudson', yo:'yo'}),
+(yo180 {name:'Ian', yo:'yo'}),
+(yo181 {name:'Xavier', yo:'yo'}),
+(yo182 {name:'Camden', yo:'yo'}),
+(yo183 {name:'Tristan', yo:'yo'}),
+(yo184 {name:'Carson', yo:'yo'}),
+(yo185 {name:'Jason', yo:'yo'}),
+(yo186 {name:'Nolan', yo:'yo'}),
+(yo187 {name:'Riley', yo:'yo'}),
+(yo188 {name:'Lincoln', yo:'yo'}),
+(yo189 {name:'Brody', yo:'yo'}),
+(yo190 {name:'Bentley', yo:'yo'}),
+(yo191 {name:'Nathaniel', yo:'yo'}),
+(yo192 {name:'Josiah', yo:'yo'}),
+(yo193 {name:'Declan', yo:'yo'}),
+(yo194 {name:'Jake', yo:'yo'}),
+(yo195 {name:'Asher', yo:'yo'}),
+(yo196 {name:'Jeremiah', yo:'yo'}),
+(yo197 {name:'Cole', yo:'yo'}),
+(yo198 {name:'Mateo', yo:'yo'}),
+(yo199 {name:'Micah', yo:'yo'}),
+(yo200 {name:'Elliot', yo:'yo'}),
+//The virtue of the yo is not in the act of yo'ing but in the sharing of the yo.
+(yo1)-[:YO]->(yo2),
+(yo2)-[:YO]->(yo3),
+(yo16)-[:YO]->(yo3),
+(yo4)-[:YO]->(yo3),
+(yo5)-[:YO]->(yo3),
+(yo6)-[:YO]->(yo3),
+(yo7)-[:YO]->(yo3),
+(yo8)-[:YO]->(yo9),
+(yo9)-[:YO]->(yo10),
+(yo110)-[:YO]->(yo11),
+(yo111)-[:YO]->(yo12),
+(yo112)-[:YO]->(yo13),
+(yo113)-[:YO]->(yo14),
+(yo114)-[:YO]->(yo15),
+(yo15)-[:YO]->(yo16),
+(yo15)-[:YO]->(yo17),
+(yo15)-[:YO]->(yo18),
+(yo15)-[:YO]->(yo19),
+(yo15)-[:YO]->(yo20),
+(yo15)-[:YO]->(yo21),
+(yo15)-[:YO]->(yo22),
+(yo15)-[:YO]->(yo23),
+(yo15)-[:YO]->(yo24),
+(yo15)-[:YO]->(yo25),
+(yo15)-[:YO]->(yo26),
+(yo15)-[:YO]->(yo27),
+(yo23)-[:YO]->(yo28),
+(yo24)-[:YO]->(yo29),
+(yo25)-[:YO]->(yo30),
+(yo26)-[:YO]->(yo31),
+(yo50)-[:YO]->(yo32),
+(yo28)-[:YO]->(yo33),
+(yo33)-[:YO]->(yo34),
+(yo4)-[:YO]->(yo34),
+(yo35)-[:YO]->(yo34),
+(yo36)-[:YO]->(yo34),
+(yo37)-[:YO]->(yo34),
+(yo38)-[:YO]->(yo34),
+(yo39)-[:YO]->(yo34),
+(yo40)-[:YO]->(yo34),
+(yo41)-[:YO]->(yo34),
+(yo102)-[:YO]->(yo43),
+(yo103)-[:YO]->(yo44),
+(yo104)-[:YO]->(yo45),
+(yo105)-[:YO]->(yo46),
+(yo106)-[:YO]->(yo47),
+(yo107)-[:YO]->(yo48),
+(yo108)-[:YO]->(yo49),
+(yo109)-[:YO]->(yo50),
+(yo110)-[:YO]->(yo51),
+(yo111)-[:YO]->(yo52),
+(yo112)-[:YO]->(yo53),
+(yo113)-[:YO]->(yo54),
+(yo114)-[:YO]->(yo55),
+(yo115)-[:YO]->(yo56),
+(yo116)-[:YO]->(yo57),
+(yo117)-[:YO]->(yo58),
+(yo118)-[:YO]->(yo59),
+(yo59)-[:YO]->(yo60),
+(yo60)-[:YO]->(yo61),
+(yo61)-[:YO]->(yo62),
+(yo61)-[:YO]->(yo63),
+(yo61)-[:YO]->(yo64),
+(yo61)-[:YO]->(yo65),
+(yo61)-[:YO]->(yo66),
+(yo61)-[:YO]->(yo67),
+(yo61)-[:YO]->(yo68),
+(yo61)-[:YO]->(yo69),
+(yo61)-[:YO]->(yo70),
+(yo61)-[:YO]->(yo71),
+(yo61)-[:YO]->(yo72),
+(yo72)-[:YO]->(yo23),
+(yo73)-[:YO]->(yo24),
+(yo74)-[:YO]->(yo25),
+(yo75)-[:YO]->(yo26),
+(yo76)-[:YO]->(yo27),
+(yo77)-[:YO]->(yo78),
+(yo78)-[:YO]->(yo79),
+(yo179)-[:YO]->(yo80),
+(yo180)-[:YO]->(yo80),
+(yo181)-[:YO]->(yo80),
+(yo182)-[:YO]->(yo80),
+(yo183)-[:YO]->(yo80),
+(yo184)-[:YO]->(yo80),
+(yo185)-[:YO]->(yo80),
+(yo186)-[:YO]->(yo80),
+(yo187)-[:YO]->(yo80),
+(yo188)-[:YO]->(yo80),
+(yo89)-[:YO]->(yo90),
+(yo70)-[:YO]->(yo91),
+(yo71)-[:YO]->(yo92),
+(yo72)-[:YO]->(yo93),
+(yo73)-[:YO]->(yo94),
+(yo74)-[:YO]->(yo95),
+(yo75)-[:YO]->(yo96),
+(yo76)-[:YO]->(yo97),
+(yo97)-[:YO]->(yo98),
+(yo98)-[:YO]->(yo99),
+(yo99)-[:YO]->(yo100),
+//some people get a little to ambitious with their yooooooos
+(yo101)-[:yoyoyoyooooo]->(yo2),
+(yo102)-[:yoyoyoyooooo]->(yo3),
+(yo103)-[:yoyoyoyooooo]->(yo4),
+(yo104)-[:yoyoyoyooooo]->(yo5),
+(yo105)-[:yoyoyoyooooo]->(yo6),
+(yo106)-[:yoyoyoyooooo]->(yo7),
+(yo107)-[:yoyoyoyooooo]->(yo8),
+(yo108)-[:yoyoyoyooooo]->(yo9),
+(yo109)-[:yoyoyoyooooo]->(yo10),
+(yo110)-[:yoyoyoyooooo]->(yo11),
+(yo111)-[:yoyoyoyooooo]->(yo12),
+(yo112)-[:yoyoyoyooooo]->(yo13),
+(yo113)-[:yoyoyoyooooo]->(yo14),
+(yo114)-[:yoyoyoyooooo]->(yo15),
+(yo115)-[:yoyoyoyooooo]->(yo16),
+(yo116)-[:yoyoyoyooooo]->(yo17),
+(yo117)-[:yoyoyoyooooo]->(yo17),
+(yo118)-[:yoyoyoyooooo]->(yo17),
+(yo119)-[:yoyoyoyooooo]->(yo17),
+(yo120)-[:yoyoyoyooooo]->(yo17),
+(yo121)-[:yoyoyoyooooo]->(yo17),
+(yo83)-[:yoyoyoyooooo]->(yo17),
+(yo84)-[:yoyoyoyooooo]->(yo17),
+(yo124)-[:yoyoyoyooooo]->(yo17),
+(yo125)-[:yoyoyoyooooo]->(yo17),
+(yo126)-[:yoyoyoyooooo]->(yo17),
+(yo127)-[:yoyoyoyooooo]->(yo17),
+(yo128)-[:yoyoyoyooooo]->(yo17),
+(yo129)-[:yoyoyoyooooo]->(yo17),
+(yo130)-[:yoyoyoyooooo]->(yo17),
+(yo131)-[:yoyoyoyooooo]->(yo17),
+(yo132)-[:yoyoyoyooooo]->(yo17),
+(yo133)-[:yoyoyoyooooo]->(yo17),
+(yo134)-[:yoyoyoyooooo]->(yo17),
+(yo135)-[:yoyoyoyooooo]->(yo17),
+(yo136)-[:yoyoyoyooooo]->(yo17),
+(yo137)-[:yoyoyoyooooo]->(yo17),
+(yo138)-[:yoyoyoyooooo]->(yo17),
+(yo139)-[:yoyoyoyooooo]->(yo17),
+(yo140)-[:yoyoyoyooooo]->(yo17),
+(yo141)-[:yoyoyoyooooo]->(yo17),
+(yo142)-[:yoyoyoyooooo]->(yo17),
+(yo143)-[:yoyoyoyooooo]->(yo17),
+(yo144)-[:yoyoyoyooooo]->(yo17),
+(yo145)-[:yoyoyoyooooo]->(yo17),
+(yo146)-[:yoyoyoyooooo]->(yo47),
+(yo147)-[:yoyoyoyooooo]->(yo48),
+(yo148)-[:yoyoyoyooooo]->(yo49),
+(yo149)-[:yoyoyoyooooo]->(yo50),
+(yo150)-[:yoyoyoyooooo]->(yo51),
+(yo151)-[:yoyoyoyooooo]->(yo52),
+(yo152)-[:yoyoyoyooooo]->(yo53),
+(yo153)-[:yoyoyoyooooo]->(yo54),
+(yo154)-[:yoyoyoyooooo]->(yo55),
+(yo155)-[:yoyoyoyooooo]->(yo56),
+(yo156)-[:yoyoyoyooooo]->(yo57),
+(yo157)-[:yoyoyoyooooo]->(yo58),
+(yo158)-[:yoyoyoyooooo]->(yo59),
+(yo159)-[:yoyoyoyooooo]->(yo60),
+(yo160)-[:yoyoyoyooooo]->(yo61),
+(yo161)-[:yoyoyoyooooo]->(yo62),
+(yo162)-[:yoyoyoyooooo]->(yo63),
+(yo163)-[:yoyoyoyooooo]->(yo64),
+(yo164)-[:yoyoyoyooooo]->(yo65),
+(yo165)-[:yoyoyoyooooo]->(yo66),
+(yo166)-[:yoyoyoyooooo]->(yo67),
+(yo167)-[:yoyoyoyooooo]->(yo68),
+(yo168)-[:yoyoyoyooooo]->(yo69),
+(yo169)-[:yoyoyoyooooo]->(yo70),
+(yo170)-[:yoyoyoyooooo]->(yo71),
+(yo171)-[:yoyoyoyooooo]->(yo72),
+(yo172)-[:yoyoyoyooooo]->(yo73),
+(yo173)-[:yoyoyoyooooo]->(yo74),
+(yo174)-[:yoyoyoyooooo]->(yo75),
+(yo175)-[:yoyoyoyooooo]->(yo76),
+(yo176)-[:yoyoyoyooooo]->(yo77),
+(yo177)-[:yoyoyoyooooo]->(yo78),
+(yo178)-[:yoyoyoyooooo]->(yo79),
+(yo179)-[:yoyoyoyooooo]->(yo80),
+(yo180)-[:yoyoyoyooooo]->(yo81),
+(yo181)-[:yoyoyoyooooo]->(yo82),
+(yo182)-[:yoyoyoyooooo]->(yo83),
+(yo183)-[:yoyoyoyooooo]->(yo84),
+(yo184)-[:yoyoyoyooooo]->(yo85),
+(yo185)-[:yoyoyoyooooo]->(yo86),
+(yo186)-[:yoyoyoyooooo]->(yo87),
+(yo187)-[:yoyoyoyooooo]->(yo88),
+(yo188)-[:yoyoyoyooooo]->(yo89),
+(yo189)-[:yoyoyoyooooo]->(yo90),
+(yo190)-[:yoyoyoyooooo]->(yo91),
+(yo191)-[:yoyoyoyooooo]->(yo92),
+(yo192)-[:yoyoyoyooooo]->(yo93),
+(yo193)-[:yoyoyoyooooo]->(yo94),
+(yo194)-[:yoyoyoyooooo]->(yo95),
+(yo195)-[:yoyoyoyooooo]->(yo96),
+(yo196)-[:yoyoyoyooooo]->(yo97),
+(yo197)-[:yoyoyoyooooo]->(yo98),
+(yo198)-[:yoyoyoyooooo]->(yo99),
+(yo199)-[:yoyoyoyooooo]->(yo100),
+//Yo, did you know that relationships can have properties too?
+(yo1)-[:yo {hashtag:'#nfl'}]->(yo131),
+(yo2)-[:yo {hashtag:'#nfl'}]->(yo132),
+(yo3)-[:yo {hashtag:'#nfl'}]->(yo133),
+(yo4)-[:yo {hashtag:'#nfl'}]->(yo134),
+(yo5)-[:yo {hashtag:'#nfl'}]->(yo135),
+(yo6)-[:yo {hashtag:'#nfl'}]->(yo136),
+(yo7)-[:yo {hashtag:'#nfl'}]->(yo137),
+(yo8)-[:yo {hashtag:'#nfl'}]->(yo138),
+(yo9)-[:yo {hashtag:'#nfl'}]->(yo139),
+(yo10)-[:yo {hashtag:'#nfl'}]->(yo140),
+(yo11)-[:yo {hashtag:'#nfl'}]->(yo141),
+(yo12)-[:yo {hashtag:'#nfl'}]->(yo142),
+(yo13)-[:yo {hashtag:'#nfl'}]->(yo143),
+(yo14)-[:yo {hashtag:'#nfl'}]->(yo144),
+(yo15)-[:yo {hashtag:'#nfl'}]->(yo145),
+(yo16)-[:yo {hashtag:'#nascar'}]->(yo146),
+(yo17)-[:yo {hashtag:'#nascar'}]->(yo147),
+(yo18)-[:yo {hashtag:'#nascar'}]->(yo148),
+(yo18)-[:yo {hashtag:'#nascar'}]->(yo149),
+(yo18)-[:yo {hashtag:'#nascar'}]->(yo150),
+(yo18)-[:yo {hashtag:'#nascar'}]->(yo151),
+(yo18)-[:yo {hashtag:'#nascar'}]->(yo152),
+(yo18)-[:yo {hashtag:'#nascar'}]->(yo153),
+(yo24)-[:yo {hashtag:'#mlb'}]->(yo154),
+(yo25)-[:yo {hashtag:'#mlb'}]->(yo155),
+(yo26)-[:yo {hashtag:'#mlb'}]->(yo156),
+(yo27)-[:yo {hashtag:'#mlb'}]->(yo157),
+(yo28)-[:yo {hashtag:'#familyguy'}]->(yo158),
+(yo28)-[:yo {hashtag:'#familyguy'}]->(yo159),
+(yo28)-[:yo {hashtag:'#familyguy'}]->(yo160),
+(yo28)-[:yo {hashtag:'#familyguy'}]->(yo161),
+(yo32)-[:yo {hashtag:'#familyguy'}]->(yo162),
+(yo33)-[:yo {hashtag:'#familyguy'}]->(yo163),
+(yo34)-[:yo {hashtag:'#familyguy'}]->(yo164),
+(yo35)-[:yo {hashtag:'#familyguy'}]->(yo165),
+(yo36)-[:yo {hashtag:'#familyguy'}]->(yo166),
+(yo37)-[:yo {hashtag:'#familyguy'}]->(yo167),
+(yo38)-[:yo {hashtag:'#familyguy'}]->(yo168),
+(yo39)-[:yo {hashtag:'#familyguy'}]->(yo169),
+(yo60)-[:yo {hashtag:'#familyguy'}]->(yo170),
+(yo61)-[:yo {hashtag:'#familyguy'}]->(yo171),
+(yo62)-[:yo {hashtag:'#familyguy'}]->(yo172),
+(yo63)-[:yo {hashtag:'#familyguy'}]->(yo173),
+(yo44)-[:yo {hashtag:'#familyguy'}]->(yo174),
+(yo100)-[:yo {hashtag:'#heyarnold'}]->(yo175),
+(yo101)-[:yo {hashtag:'#heyarnold'}]->(yo176),
+(yo102)-[:yo {hashtag:'#heyarnold'}]->(yo177),
+(yo103)-[:yo {hashtag:'#heyarnold'}]->(yo178),
+(yo104)-[:yo {hashtag:'#heyarnold'}]->(yo179),
+(yo105)-[:yo {hashtag:'#heyarnold'}]->(yo180),
+(yo106)-[:yo {hashtag:'#heyarnold'}]->(yo181),
+(yo103)-[:yo {hashtag:'#NEO4j'}]->(yo46),
+(yo103)-[:yo {hashtag:'#NEO4j'}]->(yo47),
+(yo103)-[:yo {hashtag:'#NEO4j'}]->(yo48),
+(yo103)-[:yo {hashtag:'#NEO4j'}]->(yo49),
+(yo103)-[:yo {hashtag:'#NEO4j'}]->(yo50),
+(yo103)-[:yo {hashtag:'#NEO4j'}]->(yo51),
+(yo103)-[:yo {hashtag:'#NEO4j'}]->(yo52),
+(yo103)-[:yo {hashtag:'#NEO4j'}]->(yo53),
+(yo103)-[:yo {hashtag:'#NEO4j'}]->(yo54),
+(yo103)-[:yo {hashtag:'#NEO4j'}]->(yo55),
+(yo103)-[:yo {hashtag:'#NEO4j'}]->(yo56),
+(yo106)-[:yo {hashtag:'#NEO4j'}]->(yo57),
+(yo106)-[:yo {hashtag:'#NEO4j'}]->(yo58),
+(yo106)-[:yo {hashtag:'#NEO4j'}]->(yo59),
+(yo106)-[:yo {hashtag:'#NEO4j'}]->(yo60),
+(yo106)-[:yo {hashtag:'#NEO4j'}]->(yo61),
+(yo106)-[:yo {hashtag:'#NEO4j'}]->(yo62),
+(yo106)-[:yo {hashtag:'#NEO4j'}]->(yo63),
+(yo106)-[:yo {hashtag:'#NEO4j'}]->(yo64),
+(yo106)-[:yo {hashtag:'#NEO4j'}]->(yo65),
+(yo106)-[:yo {hashtag:'#NEO4j'}]->(yo66),
+(yo106)-[:yo {hashtag:'#NEO4j'}]->(yo67),
+(yo84)-[:yo {hashtag:'#NEO4j'}]->(yo68),
+(yo84)-[:yo {hashtag:'#NEO4j'}]->(yo69),
+(yo84)-[:yo {hashtag:'#NEO4j'}]->(yo70),
+(yo84)-[:yo {hashtag:'#NEO4j'}]->(yo71),
+(yo84)-[:yo {hashtag:'#NEO4j'}]->(yo72),
+(yo84)-[:yo {hashtag:'#NEO4j'}]->(yo73),
+(yo83)-[:yo {hashtag:'#emilifyouseethisyoooooo'}]->(yo84);
+
+----
+
+== Yo, this is a Graph. <<Top, ^Yo^>>
+
+//graph
+
+== The Dynamic "Yo" <<Top, ^Yo^>>
+
+I am Yo. You are Yo. We yo. 
+
+image::http://i.imgur.com/kbA8EBs.png[]
+
+== Tell Me About These YOs <<Top, ^Yo^>>
+
+How many YOs would be YO'ed if a YO could YO a YO?
+
+[source,cypher]
+----
+
+MATCH (Yoer)-[]->(YOee)
+RETURN count(*)
+
+----
+//table
+
+Lot's of YOs are YO'ed when you can YO a YO.
+
+[cols="1*"]
+|===
+a|image::http://i.imgur.com/3fqjSNN.gif[]
+|===
+
+Who do I YO and who YOs me?
+
+[source,cypher]
+----
+
+MATCH (n)-[]-(YOee)
+WHERE n.name='Kevin'
+RETURN n AS Kevin,YOee
+
+----
+//table
+
+[cols="1*"]
+|===
+a|image::http://i.imgur.com/VkZ92Lb.gif[]
+|===
+
+When one YOs what do they #YO about most? 
+
+Show me the top 3 YO'iest YOs...Yo? 
+
+[source,cypher]
+----
+
+MATCH (YOer)-[r]-(YOee)
+WHERE HAS(r.hashtag) 
+RETURN r.hashtag, count(*) 
+ORDER BY count(*) DESC
+LIMIT 3
+
+----
+//table
+
+=== Yoo? <<Top, ^Yo^>>
+
+Yo!
