@@ -1,0 +1,234 @@
+= Uber vs. Lyft: Using Graphs for Evil
+
+:author: Kevin "I Have No Idea What I'm Doing" Van Gundy
+:twitter: @KevinVanGundy
+:tags: Uber, Lyft, Dr.Evil, Routing
+
+image::http://i.imgur.com/R4ZdWhG.png[align="center"]
+
+http://en.wikipedia.org/wiki/Uber_(company)[Uber] and http://en.wikipedia.org/wiki/Lyft[Lyft] continue to lock horns trying to carve out dominance in the ride-sharing market. In a http://techcrunch.com/2014/08/26/uber-lyft-operation-slog/[recent article], http://techcrunch.com/[TechCrunch] discussed the _alleged_ nefarious activities of both Lyft and Uber in an attempt to not only beat one another at the ride-sharing game, but to sabotage their rivals along the way. 
+
+== The Problem
+
+Let's pretend that you're a Lyft Agent of Evil. Your goal is to cause service disruptions by calling for Uber drivers and canceling at the last second. You're not the type to do things in halves-- you want to be as evil as possible. 
+
+image::http://i.imgur.com/imzKmgR.gif[align="center"]
+
+== Domain
+
+I decided to map out a small portion of http://en.wikipedia.org/wiki/San_Francisco[San Francisco] using intersections as nodes and the streets as relationships. The relationships between each intersection carry a property called "distance" which approximates in miles the distance between each intersection. (I used nice round numbers for this exercise, thus our map isn't to scale.)
+
+image::http://i.imgur.com/G4xfXQn.png?1[align="center"]
+
+
+
+
+//hide
+//setup
+Click the Plus to see the Cypher
+[source,cypher]
+----
+CREATE
+(int1:intersection {name: "Columbus, Kearny, and Broadway"}),
+(int2:intersection {name: "Broadway and Battery"}),
+(int3:intersection {name: "Montgomery and Columbus"}),
+(int4:intersection {name: "Kearny and California"}),
+(int5:intersection {name: "Montgomery and California"}),
+(int6:intersection {name: "Battery and California"}),
+(int7:intersection {name: "Kearny and Pine"}),
+(int8:intersection {name: "Montgomery and Pine"}),
+(int9:intersection {name: "Battery and Pine"}),
+(int10:intersection {name: "Kearny and Bush"}),
+(int11:intersection {name: "Montgomery and Bush"}),
+(int12:intersection {name: "Battery and Bush"}),
+(int13:intersection {name: "Kearny, 3rd, and Market"}),
+(int14:intersection {name: "Montgomery, 2nd, and Market"}),
+(int15:intersection {name: "Battery, 1st, and Market"}),
+(int16:intersection {name: "3rd and Mission"}),
+(int17:intersection {name: "2nd and Mission"}),
+(int18:intersection {name: "1st and Mission"}),
+(int19:intersection {name: "3rd and Folsom"}),
+(int20:intersection {name: "2nd and Folsom"}),
+(int21:intersection {name: "1st and Folsom"}),
+//
+(int1)-[:LOCATION {distance: 2}]->(int2),
+(int1)-[:LOCATION {distance: 1}]->(int3),
+(int1)-[:LOCATION {distance: 4}]->(int4),
+(int2)-[:LOCATION {distance: 4}]->(int6),
+(int3)-[:LOCATION {distance: 3}]->(int5),
+(int4)-[:LOCATION {distance: 1}]->(int5),
+(int5)-[:LOCATION {distance: 1}]->(int6),
+(int4)-[:LOCATION {distance: 1}]->(int7),
+(int7)-[:LOCATION {distance: 1}]->(int8),
+(int8)-[:LOCATION {distance: 1}]->(int9),
+(int6)-[:LOCATION {distance: 1}]->(int9),
+(int7)-[:LOCATION {distance: 1}]->(int10),
+(int10)-[:LOCATION {distance: 1}]->(int11),
+(int11)-[:LOCATION {distance: 1}]->(int8),
+(int8)-[:LOCATION {distance: 1}]->(int5),
+(int11)-[:LOCATION {distance: 1}]->(int12),
+(int9)-[:LOCATION {distance: 1}]->(int12),
+(int12)-[:LOCATION {distance: 1}]->(int15),
+(int11)-[:LOCATION {distance: 1.5}]->(int14),
+(int10)-[:LOCATION {distance: 2}]->(int13),
+(int13)-[:LOCATION {distance: 1}]->(int14),
+(int14)-[:LOCATION {distance: 1}]->(int15),
+(int13)-[:LOCATION {distance: 1}]->(int16),
+(int14)-[:LOCATION {distance: 1}]->(int17),
+(int15)-[:LOCATION {distance: 1}]->(int18),
+(int16)-[:LOCATION {distance: 1}]->(int17),
+(int17)-[:LOCATION {distance: 1}]->(int18),
+(int16)-[:LOCATION {distance: 3}]->(int19),
+(int17)-[:LOCATION {distance: 3}]->(int20),
+(int18)-[:LOCATION {distance: 3}]->(int21),
+(int19)-[:LOCATION {distance: 1}]->(int20),
+(int20)-[:LOCATION {distance: 1}]->(int21),
+//
+(uber1:uber {name:"uber"}),
+(uber2:uber {name:"uber"}),
+//
+(uber1)-[:AT {distance: 0}]->(int16),
+(uber2)-[:AT {distance: 0}]->(int6),
+//
+(lyftAgent1:lyft {name:"lyftAgent001"}),
+(lyftAgent2:lyft {name:"lyftAgent002"}),
+(lyftAgent3:lyft {name:"lyftAgent003"}),
+//
+(lyftAgent1)-[:AT {distance: 0}]->(int1),
+(lyftAgent2)-[:AT {distance: 0}]->(int11),
+(lyftAgent3)-[:AT {distance: 0}]->(int21);
+----
+//graph
+
+== Where is everybody?
+
+*Where are our nefarious navigators?*
+
+[source, cypher]
+----
+match (l:lyft)-[:AT]-(p)
+return l.name as AGENT, p.name as LOCATION
+----
+//table
+
+*Where are our unsuspecting Uber drivers?*
+
+
+[source, cypher]
+----
+match (u:uber)-[:AT]-(p)
+return u.name as DRIVER, p.name as LOCATION
+----
+//table
+
+== Doing Evil by Yourself
+
+Working alone, you can only cause so much disruption. Let's get a baseline estimate of how evil you can be. Let's say you're in San Francisco on a Friday night. Standard prices put base fare at $3/ride + $0.30/per minute + $1.50 / mile. We'll make some basic assumptions about our fraudulent foolery:
+
+* Assume that Uber drivers are able to pick up another fare immediately after the canceled fare
+* Assume that traffic / speed is a uniform 10 mph 
+
+*What are the varying opportunity costs caused by evil agents by calling for a ride and canceling at the last second?*
+
+Uber's platform is pretty great and will route the nearest driver to a given ride request--though it could be better _cough if they used neo4j cough_....if an "Agent" calls for an Uber driver, the nearest driver will be alerted and paired with that agent. 
+
+=== How much does a normal "call and cancel" _cost_ the unlucky driver in missed fare?
+
+How many miles will a normal "call and cancel" take the driver out of his way?
+
+[source, cypher]
+----
+MATCH p = (lyft)-[*0..10]-(b:uber)
+WHERE lyft.name = "lyftAgent001"
+RETURN p, reduce(dist=0, d in relationships(p) | dist + d.distance) AS totalDistance
+ORDER BY totalDistance ASC
+LIMIT 1
+----
+//graph_result
+
+So, we've taken the driver 5 miles out of his way. Let's see what that is in dollars:
+
+_Remember: uniform traffic at 10 mph, Base Fare $3 + $0.30/minute + $1.50/mile_
+
+[source, cypher]
+----
+RETURN 3+ (5 / .16667)* .3 + 5 * 1.5 AS Opportunity_Cost
+----
+//table
+
+or about ~$20
+
+Let's also assume that there are two other Lyft Agents of Evil around. Let's see what they're costing Uber drivers in time/money working alone:
+
+Lyft Agent #2
+
+[source, cypher]
+----
+MATCH p = (lyft)-[*0..10]-(b:uber)
+WHERE lyft.name = "lyftAgent002"
+RETURN p, reduce(dist=0, d in relationships(p) | dist + d.distance) AS totalDistance
+ORDER BY totalDistance ASC
+LIMIT 1
+----
+
+//graph_result
+
+[source, cypher]
+----
+RETURN 3+ (3 / .16667)* .3 + 3 * 1.5 AS Opportunity_Cost
+----
+
+//table
+
+And the third agent, we'll assume since they're not working in concord that the Uber drivers return to their starting location after an Agent cancels their ride request:
+
+[source, cypher]
+----
+MATCH p = (lyft)-[*0..10]-(b:uber)
+WHERE lyft.name = "lyftAgent003"
+RETURN p, reduce(dist=0, d in relationships(p) | dist + d.distance) AS totalDistance
+ORDER BY totalDistance ASC
+LIMIT 1
+----
+
+//graph_result
+
+[source, cypher]
+----
+RETURN 3 + (5 / .16667)* .3 + 5 * 1.5 AS Opportunity_Cost
+----
+
+//table
+
+So in total, individual evil-doers cost Uber about $56 in this instance. 
+
+== Doing Evil with Your Friends
+
+Doing evil by yourself isn't fun. Why not coordinate with all of your fellow Lyft Agents of Evil? Let's figure out what the optimum call order would be to maximize the amount of disruption and opportunity cost to the Uber drivers. We're going to route de-optimize!
+
+The three agents will work together to ensure that Uber makes the least fares in a given amount of time. This will comprise of tying up one driver with a short fare and forcing the other one to drive the longest path without actually picking anyone up.
+
+What is the longest driving route between two Lyft Agents of Evil? Insofar as in what order should our ride-sharing cartel  call Ubers to penalize the driver the most in opportunity costs. We'll start by asking what is the longest path starting at an Uber driver, then to one Lyft Agent, and then to another Lyft Agent.
+
+[source, cypher]
+----
+MATCH p = (a:uber)-[*0..5]-(b:lyft)-[*0..13]-(c:lyft)
+RETURN a.name as VICTIM, b.name as DRIVER_1, c.name as DRIVER_2,  reduce(dist=0, d in relationships(p) | dist + d.distance) AS totalDistance
+ORDER BY totalDistance DESC
+LIMIT 1
+----
+
+//table
+
+[source, cypher]
+----
+RETURN 3+ (28 / .16667)* .3 + 28 * 1.5 AS Opportunity_Cost
+----
+
+//table
+
+Which costs the driver ~$95 in missed fare. This is the pickup order we want to force the Uber driver to take, canceling just when he arrives at both locations. This means LyftAgent002 should hail an Uber driver first. Agent 002 may take up to a $38 ride and as a whole they will still cost Uber drivers more in opportunity costs than working alone. 
+
+
+image::http://i.imgur.com/as2g4CN.gif[align="center"]
+
