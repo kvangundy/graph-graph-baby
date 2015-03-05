@@ -1,0 +1,230 @@
+= Content Management: Restaurant Directory 
+Kevin Van Gundy <kevin@neotechnology.com>
+:neo4j-version: 2.1
+:author: Kevin Van Gundy
+:twitter: @kevinvangundy
+
+[cols="1*", border="3"]
+|===
+a|image::http://i.imgur.com/FRvzbeg.jpg[align="center"]
+|===
+
+== What is Content Management? 
+
+http://en.wikipedia.org/wiki/Content_management_system[Wikipedian answer]: "A content management system (CMS) is a computer application that allows publishing, editing and modifying content, organizing, deleting as well as maintenance from a central interface. Such systems of content management provide procedures to manage workflow in a collaborative environment."
+
+*More simply put:* Content management is the administration of digital content throughout its lifecycle. The content involved may be any combination of images, video, audio, multimedia, or text. This includes the creation, editing, publishing, overseeing, as well as the eventual removal / storage of that content. 
+
+In a graph you can map out these assets in a 1:1 ratio as documents or in as granular manner as your use-case demands. It really comes down to how _*YOU want*_ to model your information. 
+ 
+== Data Model
+
+Here is the data model I have chosen for my Yelp / Restaurant directory. I've chosen to isolate the frequently updated assets that would be likely be reused across many different webpages. I've also added "active" property on the relationships between a given restaurant and its associated assets and a timestamp() on the deactivated pieces of content. We'll see later on in this Gist how this property allows us to easily update, keep track of, publish the correct information as well delete pieces of content. 
+
+image::http://i.imgur.com/w2lVarW.png[align="center"]
+
+== Building our database
+
+Create some constrains. For example, The Taco Bells are rampant. Rather than have many different "Taco Bell” duplicates, we will have one restaurant node, with several (or many) location nodes both active and inactive branching off.
+
+Also, note that you can’t run several constraints all in one statement in browser (in gist). If you would like to do them all at once, you’re better off using the Neo4j shell. Here, we’re protecting ourselves creating duplicates of content inside of our directory. If duplication is a major issue for your team, check out this http://www.neo4j.org/graphgist?dropbox-14493611%2Fmerge_nodes.adoc[Gist] on merging nodes. 
+
+//hide
+[source, cypher]
+----
+CREATE CONSTRAINT ON (a:City) ASSERT a.name IS UNIQUE;
+CREATE CONSTRAINT ON (a:ZipCode) ASSERT a.zip IS UNIQUE;
+CREATE CONSTRAINT ON (a:State) ASSERT a.name IS UNIQUE;
+CREATE CONSTRAINT ON (a:Location) ASSERT a.address IS UNIQUE;
+CREATE CONSTRAINT ON (a:Account) ASSERT a.name IS UNIQUE;
+CREATE CONSTRAINT ON (a:Email) ASSERT a.email IS UNIQUE;
+CREATE CONSTRAINT ON (a:Category) ASSERT a.name IS UNIQUE;
+CREATE CONSTRAINT ON (a:URL) ASSERT a.url IS UNIQUE;
+CREATE CONSTRAINT ON (a:Restaurant) ASSERT a.name IS UNIQUE;
+CREATE CONSTRAINT ON (a:Phone) ASSERT a.number IS UNIQUE;
+----
+
+== Importing Data (+Load CSV+)
+
+I've hosted my data at the URL: https://dl.dropboxusercontent.com/u/313565755/California_Rest.csv in an effort to illustrate in some small fashion how to import a CSV into Neo4j and how to manipulate that data to create nodes, relationships, and properties. For a more in depth read on how to import data using LOAD CSV, read the legendary Michael Hunger's blog posts http://jexp.de/blog/2014/06/load-csv-into-neo4j-quickly-and-successfully[Part I], http://jexp.de/blog/2014/10/load-cvs-with-success/[Part II].
+
+There are a few things I'd like to point out:
+
+First, use a periodic commit. While for this very small dataset it isn't necessary, we recommend it in nearly all cases when running a +LOAD CSV+. This prevents large transactions from overflowing your available database memory (JVM Heap).
+
+I'd also like to point out how to separate out multiple pieces of information contained under the same header. In this CSV, we have many restaurants that are classified with multiple categories, e.g., "Fast Food, Mexican, Big Portions." If left unmodified, Neo4j would import that list as a single string. We can use +SPLIT()+ to tell Neo4j to split that string into an array. We then use +UNWIND+ to transform this collection into individual rows. (http://neo4j.com/docs/stable/query-functions-string.html#functions-split[Split Documentation], http://neo4j.com/docs/stable/query-unwind.html[Unwind Documentation])
+
+Lastly, we should note that Neo4j's +LOAD CSV+ pulls everything in as a string unless instructed otherwise. We can use +toINT+ or +toFLOAT+ to have Neo parse the string as if it was an floating point number or an integer (http://neo4j.com/docs/stable/query-functions-scalar.html[Scalar Function Documentation])
+
+
+//hide
+[source, cypher]
+----
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS from "https://dl.dropboxusercontent.com/u/313565755/California_Rest.csv" AS line
+WITH line, SPLIT(line.Categories, ",") AS cats, toFloat(line.Latitude) AS lats, toFloat(line.Longitude) AS longs
+UNWIND cats AS cat
+MERGE (a:Account {name:line.Account})
+MERGE (c:Contact {name:line.Restaurant_Name+" "+"Contact Info"})
+MERGE (p:Phone {number:line.Phone_Number, created:timestamp()})
+MERGE (r:Restaurant {name:line.Restaurant_Name})
+MERGE (e:Email {email:line.Email, created:timestamp()})
+MERGE (l:Location {address:line.Street_Address, lat:lats, long:longs})
+MERGE(s:State {name:line.State})
+MERGE (z:ZipCode {zip:line.Zip_Code})
+MERGE (t:City {name:line.City})
+MERGE (y:Category {name:cat})
+MERGE (b:URL {url:line.Website})
+WITH a,c,r,l,p,e,s,z,t,y,b
+MERGE (a)-[:HAS_RESTAURANT {active:true}]->(r)
+MERGE (r)-[:HAS_CONTACT {active:true}]->(c)
+MERGE (l)-[:HAS_PHONE {active:true}]->(p)
+MERGE (c)-[:HAS_EMAIL {active:true}]->(e)
+MERGE (c)-[:HAS_WEBSITE {active:true}]->(b)
+MERGE (r)-[:HAS_LOCATION {active:true}]->(l)
+MERGE (l)<-[:HAS_ADDRESS]-(z)<-[:HAS_ZIPCODE]-(t)<-[:HAS_CITY]-(s)
+MERGE (r)-[:IN_CATEGORY]->(y);
+----
+
+
+== Let's inspect our data!
+
+=== What is Related and How?
+
+This is a query I use all the time, it helps me remember how my data is tied together. This will return the node types and the relationships between given node types. You'll notice that this query ships with Neo4j under starred queries in the sidebar. 
+
+[source, cypher]
+----
+MATCH (a)-[r]->(b)
+RETURN DISTINCT head(labels(a)) as THIS, type(r) as TO, head(labels(b)) as THAT
+limit 15
+----
+
+//table 
+
+Let's start with an +:Account+ node....
+
+[source, cypher]
+----
+MATCH (a:Account)
+RETURN a
+limit 1
+----
+//graph_result
+
+_double click_
+
+[source, cypher]
+----
+MATCH (a:Account {name:'Yum Foods'})-[:HAS_RESTAURANT]-(b)
+RETURN a,b
+----
+//graph_result
+
+_double click, double double click_
+
+[source, cypher]
+----
+MATCH (a:Account {name:'Yum Foods'})-[:HAS_RESTAURANT]-(b:Restaurant)-[:HAS_LOCATION]-(c)
+RETURN a,b,c
+----
+//graph_result
+
+_click, click, clicky, click_
+
+[source, cypher]
+----
+MATCH (a:Account {name:'Yum Foods'})-[:HAS_RESTAURANT]-(b:Restaurant)-[:HAS_CONTACT]-(c)-[]-()
+RETURN a,b,c
+----
+//graph_result
+
+=== "Publishing" our Content
+
+If we were Yelp, or some similar directory service when a user loads a page-- we need to make sure that we're service them the correct content and information. Check out http://watch.neo4j.org/video/76818240[Structr], it's a natural extension of this content management example. It's a CMS that uses Neo4j to help users build web applications. 
+
+This is where our +r.active+ property comes into play. When we make requests, we'll ask for only pieces of content whose adjoining relationships are  +r.active+ = +true+.
+
+[source, cypher]
+----
+MATCH (a:Restaurant {name:'Taco Bell'})-[:HAS_LOCATION {active:true}]->(loc:Location)-[rr:HAS_PHONE {active:true}]->(fone:Phone)
+RETURN a.name as Restaurant, loc.address as Location, fone.number as PhoneNumber
+----
+//table
+
+What does this look like visually?
+
+[source, cypher]
+----
+MATCH x=(a:Restaurant {name:'Taco Bell'})-[:HAS_LOCATION {active:true}]->(l:Location)-[:HAS_PHONE {active:true}]->(p:Phone)
+RETURN x
+----
+//graph_result
+
+=== Graph Search
+
+"Find me a restaurant that serves fast food located in my zip code"
+
+[source, cypher]
+----
+match search = (:ZipCode {zip:'95630'})-[:HAS_ADDRESS]->(:Location)<-[:HAS_LOCATION]-(rest:Restaurant)-[:IN_CATEGORY]-(:Category {name:'Fast Food'})
+return search
+----
+//graph_result
+
+=== "Understanding" our Content
+
+As an enterprise you’re going to want to quantitatively identify your key accounts. In this model, we'll decide on key accounts based on number of restaurant locations associated with a given account. If we so chose, we could also add cost / revenue values to the relationships and then perform an aggregation on them. 
+
+[source, cypher]
+----
+MATCH (a:Account)-[:HAS_RESTAURANT {active:true}]->(r:Restaurant)-[:HAS_LOCATION {active:true}]->(l:Location)
+RETURN a.name as Account, count(*) as Number_Of_Locations
+ORDER BY count(*) DESC
+LIMIT 3
+----
+//table
+
+
+=== "Updating" our Content
+
+Updating *a lot* of Information inside our CMS...
+
+[source, cypher]
+----
+USING PERIODIC COMMIT 1000
+LOAD CSV WITH HEADERS from "https://dl.dropboxusercontent.com/u/313565755/newphones.csv" AS line
+WITH line
+MATCH (rest:Restaurant {name:line.Restaurant_Name})-[:HAS_LOCATION]->(loc:Location)-[rel:HAS_PHONE]-(fone:Phone)
+WITH rest,loc,rel,fone,line
+MERGE(p:Phone {number:line.newphone})
+MERGE(loc)-[rel2:HAS_PHONE]->(fone)
+ON CREATE SET rel2.active=true, rel2.created=timestamp(),rel.active=false,rel.deactivated=timestamp()
+RETURN rest.name AS RESTAURANT,rel2.active AS ACTIVE, fone.number AS PHONE_NUMBER
+----
+//table
+
+Updating _a little bit_ of information inside our CMS. 
+
+Let's pretend that Yum Foods has decided to merge all of its phone lines into a single customer service hotline
+
+[source, cypher]
+----
+MATCH (:Account {name:'Yum Foods'})-[:HAS_RESTAURANT]-(:Restaurant)-[:HAS_LOCATION]-(loc:Location)-[r:HAS_PHONE]-(oldfone:Phone)
+SET r.active = 'false', r.deactivated=timestamp()
+MERGE (newfone:Phone {number:'1-800-YUM-FOOD'})
+CREATE (loc)-[:HAS_PHONE {active:'true', created:timestamp()}]->(newfone)
+RETURN loc, r, newfone
+----
+//graph_result
+
+Let's now take a look at some of our inactive phone numbers...
+
+[source, cypher]
+----
+MATCH (a:Account {name:'Yum Foods'})-[:HAS_RESTAURANT]->(rest:Restaurant)-[:HAS_LOCATION]-(l:Location)-[rel:HAS_PHONE]-(fone)
+RETURN rest.name as WHERE, rel.active as ACTIVE_STATUS, fone.number as PHONE_NUMBER
+----
+//table
+
+== The End
