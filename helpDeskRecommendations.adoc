@@ -1,0 +1,156 @@
+= Neo4j Powers Real-Time Recommendations 
+Kevin Van Gundy <kevin@neotechnology.com>
+:neo4j-version: 2.1
+:author: Kevin Van Gundy
+:twitter: @kevinvangundy
+
+[cols="1*"]
+|===
+a|image::http://i.imgur.com/93rpnWf.jpg[align="center"]
+|===
+
+== Background
+
+Many large enterprises often serve end users and intermediaries with an array of support services. One of Neo Technology's Fortune 500 customers approached out team in search of real-time recommendations to encourage use of their online knowledge base. They needed to be able to point users to the right articles as they loaded each page. 
+Neo4j was a natural fit for this project due it the highly connected nature of high efficacy recommendations. 
+
+== Business Problem
+
+* Call center volumes needed to be lowered by improving the efficacy of online self service
+
+* Leverage large amounts of knowledge stored in service cases, solutions, articles, forums, etc.
+
+* Problem resolution times, as well as support costs, needed to be lowered
+
+== Solution and Benefits
+
+* Cases, solutions, articles, etc. continuously scraped for cross-reference links, and represented in Neo4j
+
+* Real-time reading recommendations via Neo4j
+
+* Neo4j Enterprise with HA cluster keep their knowlege base up under enormous load
+
+* The result: customers obtain help faster, with decreased reliance on customer support
+
+== The Domain
+
+image::http://i.imgur.com/WeRaj0X.png?1[align="center]
+
+== Setup
+
+//setup
+//hide
+[source, cypher]
+----
+CREATE
+//Support Cases
+(sup01:SupportCase {name:"8500 Series Controller, No Serial Access"}),
+(sup02:SupportCase {name:"LAN Connectivity Issue"}),
+(sup03:SupportCase {name:"VPN Client Error 3002"}),
+//Knowledge Tags
+(kno01:Knowledge {name:'Wireless'}),
+(kno02:Knowledge {name:'Joining Controller'}),
+(kno03:Knowledge {name:'High Availability'}),
+(kno04:Knowledge {name:'LAN, Switching, and Routing'}),
+(kno05:Knowledge {name:'Networks'}),
+(kno06:Knowledge {name:'Multicast'}),
+(kno07:Knowledge {name:'VPN'}),
+(kno08:Knowledge {name:'Remote Client'}),
+(kno09:Knowledge {name:'AnyCONNECT'}),
+(kno10:Knowledge {name:'ASA'}),
+//Solutions
+(sol01:Solution {name:'LAN Trouble Shooting Process'}),
+(sol02:Solution {name:'Controller Serial Access'}),
+(sol03:Solution {name:'VPN Client Upgrade'}),
+//
+(sup01)-[:KNOWLEDGE ]->(kno01),
+(sup01)-[:KNOWLEDGE ]->(kno02),
+(sup01)-[:KNOWLEDGE ]->(kno03),
+(sup01)-[:KNOWLEDGE ]->(kno04),
+(sup01)-[:KNOWLEDGE ]->(kno10),
+//
+(sol01)-[:KNOWLEDGE ]->(kno01),
+(sol01)-[:KNOWLEDGE ]->(kno02),
+(sol01)-[:KNOWLEDGE ]->(kno03),
+//
+(sup02)-[:KNOWLEDGE ]->(kno04),
+(sup02)-[:KNOWLEDGE ]->(kno05),
+(sup02)-[:KNOWLEDGE ]->(kno06),
+//
+(sol02)-[:KNOWLEDGE ]->(kno04),
+(sol02)-[:KNOWLEDGE ]->(kno05),
+(sol02)-[:KNOWLEDGE ]->(kno06),
+//
+(sup03)-[:KNOWLEDGE ]->(kno07),
+(sup03)-[:KNOWLEDGE ]->(kno08),
+(sup03)-[:KNOWLEDGE ]->(kno09),
+(sup03)-[:KNOWLEDGE ]->(kno10),
+//
+(sol03)-[:KNOWLEDGE ]->(kno07),
+(sol03)-[:KNOWLEDGE ]->(kno08),
+(sol03)-[:KNOWLEDGE ]->(kno09),
+(sol03)-[:KNOWLEDGE ]->(kno10);
+----
+
+== Graph
+
+//graph
+
+== Assigning Knowledge Tags to a Question
+
+[source, cypher]
+----
+create
+(mes:Message {question:'Why wont my VPN client work?'})
+----
+
+[source, cypher]
+----
+match (k:Knowledge), (m:Message)
+where k.name = "VPN" AND m.question = 'Why wont my VPN client work?'
+create (k)<-[:KNOWLEDGE]-(m)
+----
+
+[source, cypher]
+----
+match (k:Knowledge), (m:Message)
+where k.name = "AnyCONNECT" AND m.question = 'Why wont my VPN client work?'
+create (k)<-[:KNOWLEDGE]-(m)
+----
+
+[source, cypher]
+----
+match (m:Message)--(k:Knowledge)
+where m.question = 'Why wont my VPN client work?'
+return m,k
+----
+
+//graph_result
+
+== Matching a Message to a Support Case
+
+Which support case best fits our question?
+
+[source, cypher]
+----
+match (m:Message {question:'Why wont my VPN client work?'})-[:KNOWLEDGE]-(k), (k)-[:KNOWLEDGE]-(s:SupportCase), (k)-[:KNOWLEDGE]-(u:Solution)
+with m, count(DISTINCT k) as Shared_Tags, s, u
+return m.question as Question, s.name as Support_Case, u.name as Solution, Shared_Tags
+order by Shared_Tags
+limit 1
+----
+
+//table
+
+== What Support Cases are correlated to which Solutions?
+
+[source, cypher]
+----
+match (a:SupportCase)-[:KNOWLEDGE]->(k),(b:Solution)-[:KNOWLEDGE]->(k) 
+with a, count(DISTINCT k) as tags, b 
+return a.name as Support_Case, b.name as Solution, tags
+order by tags DESC
+limit 3
+----
+
+//table
