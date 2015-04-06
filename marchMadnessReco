@@ -11,8 +11,8 @@ FOREACH(year IN years |
                         CASE
                           WHEN year % 4 <> 0 THEN range(1,28)
                           WHEN year % 100 <> 0 THEN range(1,29)
-                          WHEN year % 400 <> 0 THEN range(1,29)
-                          ELSE range(1,28)
+                          WHEN year % 400 <> 0 THEN range(1,28)
+                          ELSE range(1,29)
                         END
                       ELSE range(1,30)
                     END) |
