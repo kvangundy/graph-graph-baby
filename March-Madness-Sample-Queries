@@ -1,0 +1,33 @@
+//bracketmaker, bracketmaker, make me a billion
+//
+CREATE (g:SimulatedGame)
+WITH g
+MATCH (a:Team)-[x:WINPOWER]->(b:Team), (a)<-[y:WINPOWER]-(b)
+WHERE a.name = 'Navy' AND b.name = 'Michigan St'
+MERGE (a)-[:SIMULATED]->(g)<-[:SIMULATED]-(b)
+WITH*,
+CASE
+WHEN x.winPower > y.winPower
+THEN a.name
+ELSE b.name
+END AS winName
+SET g.winner=winName
+RETURN a, b, winName as winningTeam, g;
+//
+//What if they've never played eachother?!
+CREATE (g:SimulatedGame)
+WITH g
+MATCH (a:Team)-[aa:WINPOWER]->(intermediate:Team)<-[bb:WINPOWER]-(b:Team)
+WHERE a.name = 'Kentucky' AND b.name = 'Hampton'
+WITH*,
+CASE
+WHEN SUM(aa.Probability) > SUM(bb.Probability)
+THEN a.name
+ELSE b.name
+END AS winName
+SET g.winner=winName
+WITH*
+MERGE (a)-[:SIMULATED]->(g)<-[:SIMULATED]-(b)
+WITH*
+RETURN a, b, g;
+//end
