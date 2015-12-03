@@ -1,33 +1,54 @@
-//bracketmaker, bracketmaker, make me a billion
-//
-CREATE (g:SimulatedGame)
-WITH g
+// which teams are most likely to blow out an opponent and who is that? 
+//base on actual games play, not simulated
+
+MATCH (a)-[w:WINPOWER]->(b)
+RETURN a.name as Team_1, w.winPower as WINPOWER_Against, b.name as Team_2
+ORDER BY w.winPower DESC
+LIMIT 10;
+
+// which teams are most likely to blow out an opponent and who is that? 
+//based simulated games (proxied by teams they've co-played), note the directionality of the :WINPOWER relationships
+//this is a global query and thus fairly slow over large datasets
+
+MATCH (winner:Team)-[aa:WINPOWER]->(intermediate:Team)-[bb:WINPOWER]->(loser:Team)
+WHERE winner <> loser
+WITH sum(aa.winPower+bb.winPower) as `Win Power Delta`, winner.name as Winner, loser.name as Loser
+RETURN Winner, `Win Power Delta`, Loser
+ORDER BY `Win Power Delta` DESC
+LIMIT 10;
+
+
+//who will win between based on past performances?
+//Navy vs. Michigan St. as an example
+
 MATCH (a:Team)-[x:WINPOWER]->(b:Team), (a)<-[y:WINPOWER]-(b)
 WHERE a.name = 'Navy' AND b.name = 'Michigan St'
-MERGE (a)-[:SIMULATED]->(g)<-[:SIMULATED]-(b)
-WITH*,
+WITH a, b, y, x,
 CASE
-WHEN x.winPower > y.winPower
-THEN a.name
-ELSE b.name
-END AS winName
-SET g.winner=winName
-RETURN a, b, winName as winningTeam, g;
-//
-//What if they've never played eachother?!
-CREATE (g:SimulatedGame)
-WITH g
+	WHEN x.winPower > y.winPower
+	THEN a.name
+	ELSE b.name END AS winName, 
+CASE
+	WHEN x.winPower > y.winPower
+	THEN b.name
+	ELSE a.name END AS loseName
+RETURN winName as Winner, loseName as Loser, ABS(y.winPower-x.winPower) as `Win Power Delta`;
+
+//Who will win based on teams they've previously played?
+//Kentucky and UT Arlington as an example
+
 MATCH (a:Team)-[aa:WINPOWER]->(intermediate:Team)<-[bb:WINPOWER]-(b:Team)
-WHERE a.name = 'Kentucky' AND b.name = 'Hampton'
-WITH*,
+WHERE a.name = 'Kentucky' AND b.name = 'UT Arlington'
+//my code is sloppy, I don't know why I need two WITHs but it works
+WITH a, sum(aa.winPower) as aWin, b, sum(bb.winPower) as bWin
+WITH a, aWin, b, bWin,
 CASE
-WHEN SUM(aa.Probability) > SUM(bb.Probability)
-THEN a.name
-ELSE b.name
-END AS winName
-SET g.winner=winName
-WITH*
-MERGE (a)-[:SIMULATED]->(g)<-[:SIMULATED]-(b)
-WITH*
-RETURN a, b, g;
-//end
+	WHEN aWin > bWin
+	THEN a.name
+	ELSE b.name END AS winName,
+CASE
+	WHEN aWin > bWin
+	THEN b.name
+	ELSE a.name END AS loseName
+RETURN winName as Winner, loseName as Loser;
+
