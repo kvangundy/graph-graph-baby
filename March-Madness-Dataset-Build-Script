@@ -66,20 +66,28 @@ MERGE(opp:Team {name:line.Opponent})
 WITH line, game, team, opp
 WITH line, toINT(line.opponentScore) as oppScore, toINT(line.teamScore) as teamScore, team, opp, game, toFLOAT(line.teamDiff) as teamDiff, toFLOAT(line.oppDiff) as oppDiff
 CREATE (team)-[:PLAYED_IN {scored:teamScore, differential:teamDiff, location:line.teamLocation}]->(game)<-[:PLAYED_IN {scored:oppScore, differential:oppDiff, location:line.oppLocation}]-(opp);
-//
+
+
 //Assigning Pythagorean Expectation
 MATCH (a:Team)-[aa:PLAYED_IN]->(game)<-[bb:PLAYED_IN]-(b:Team)
 WITH toFloat(aa.scored*aa.scored) as team2, toFloat(bb.scored*bb.scored) as opp2, game, a,b
-//Pythagorean Expectation is (points_scored^2 / (points scored^2 + points allowed^2))
+
+//Remember that Pythagorean Expectation is (points_scored^2 / (points scored^2 + points allowed^2))
 WITH ((team2)/(team2+opp2)) as PyEx, game,a,b
+
+// tying the game to the correct day in our time tree
 MATCH (game)-[:OCCURED_ON]->(day)<-[:HAS_DAY]-(month)<-[:HAS_MONTH]-(year)
+
 //setting March 15th to the day before the tournament and calculating how many days ago the last game was played
 WITH (365*2015 + 2015 /4 - 2015 /100 + 2015 /400 + 15 + (153*3+8)/5) as dayBeforeTournament,
 (365*(year.year) + (year.year)/4 - (year.year)/100 + (year.year)/400 + (day.day) + (153*(month.month)+8)/5) as oldYear, PyEx,a,b
-//assuming that "win relavence" decays linearly over 4 years or how long any part of those same teams are playing against one another represented by "weight"
+
+//assuming that "win relevance" decays linearly over 4 years or how long any part of those same teams are playing against one another represented by "weight"
 WITH ((4*365.25)-(dayBeforeTournament-oldYear))/(4*365.25) as weight, PyEx, a, b
+
 //adding up all of the weights*pythagorean expectation for a current win probability
 WITH SUM(weight*PyEx) as winPower, a, b
-//creating a new relatinoship that stores a team's given probability of defeating another team as of March 15th
-SET w.winPOWER = winPower;
-//
+
+//creating a new relationship that stores a team's given probability of defeating another team as of March 15th
+MERGE (a)-[w:WINPOWER]->(b)
+SET w.winPower = winPower;
