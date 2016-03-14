@@ -1,5 +1,11 @@
+CREATE INDEX ON :Year(year);
+CREATE INDEX ON :Month(month);
+CREATE INDEX ON :Day(day);
+CREATE INDEX ON :Team(name);
+CREATE INDEX ON :Game(winner);
+
 //March Madness All Games from 2013-2015 Regular Season
-WITH range(2013, 2015) AS years, range(1,12) as months
+WITH range(2013, 2016) AS years, range(1,12) as months
 FOREACH(year IN years |
   MERGE (y:Year {year: year})
   FOREACH(month IN months |
@@ -27,6 +33,19 @@ FOREACH(i in RANGE(0, length(days)-2) |
     FOREACH(day1 in [days[i]] |
         FOREACH(day2 in [days[i+1]] |
             CREATE UNIQUE (day1)-[:NEXT]->(day2))));
+//
+LOAD CSV WITH HEADERS from 'https://dl.dropboxusercontent.com/u/313565755/ncaa2016.csv' AS line
+WITH line, toINT(line.Year) as Year, toINT(line.Month) as Month, toINT(line.Day) as Day
+WHERE line.ignore IS NOT NULL
+MATCH (:Year {year:Year})-[:HAS_MONTH]->(:Month {month:Month})-[:HAS_DAY]->(t:Day {day:Day})
+CREATE (game:Game {winner:line.winnerName})-[:OCCURED_ON]->(t)
+WITH line, game
+MERGE (team:Team {name:line.Team})
+WITH line, game, team
+MERGE(opp:Team {name:line.Opponent})
+WITH line, game, team, opp
+WITH line, toINT(line.opponentScore) as oppScore, toINT(line.teamScore) as teamScore, team, opp, game, toFLOAT(line.teamDiff) as teamDiff, toFLOAT(line.oppDiff) as oppDiff
+CREATE (team)-[:PLAYED_IN {scored:teamScore, differential:teamDiff, location:line.teamLocation}]->(game)<-[:PLAYED_IN {scored:oppScore, differential:oppDiff, location:line.oppLocation}]-(opp);
 //
 LOAD CSV WITH HEADERS from 'https://dl.dropboxusercontent.com/u/313565755/ncaa2015.csv' AS line
 WITH line, toINT(line.Year) as Year, toINT(line.Month) as Month, toINT(line.Day) as Day
@@ -79,7 +98,7 @@ WITH ((team2)/(team2+opp2)) as PyEx, game,a,b
 MATCH (game)-[:OCCURED_ON]->(day)<-[:HAS_DAY]-(month)<-[:HAS_MONTH]-(year)
 
 //setting March 15th to the day before the tournament and calculating how many days ago the last game was played
-WITH (365*2015 + 2015 /4 - 2015 /100 + 2015 /400 + 15 + (153*3+8)/5) as dayBeforeTournament,
+WITH (365*2016 + 2016 /4 - 2016 /100 + 2016 /400 + 15 + (153*3+8)/5) as dayBeforeTournament,
 (365*(year.year) + (year.year)/4 - (year.year)/100 + (year.year)/400 + (day.day) + (153*(month.month)+8)/5) as oldYear, PyEx,a,b
 
 //assuming that "win relevance" decays linearly over 4 years or how long any part of those same teams are playing against one another represented by "weight"
